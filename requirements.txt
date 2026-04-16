@@ -1,0 +1,15 @@
+flask
+torch
+torchvision
+torchaudio
+opencv-python
+numpy
+pandas
+scikit-learn
+librosa
+shap
+pyexiftool
+mutagen
+pymediainfo
+grad-cam
+Pillow
