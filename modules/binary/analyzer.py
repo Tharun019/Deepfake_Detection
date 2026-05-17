@@ -67,11 +67,29 @@ def _jpeg_quantization_score(file_path: str) -> float:
         return 0.5
 
 
+def _is_heic(file_path: str, raw: bytes) -> bool:
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext in ('.heic', '.heif'):
+        return True
+    # check ftyp box for heic/heif magic bytes
+    if len(raw) >= 12:
+        ftyp = raw[4:8]
+        brand = raw[8:12]
+        if ftyp == b'ftyp' and brand in (b'heic', b'heix', b'hevc', b'mif1'):
+            return True
+    return False
+
+
 def _analyze_image(file_path: str) -> float:
     scores = []
     try:
         with open(file_path, 'rb') as f:
             raw = f.read()
+
+        # HEIC is Apple iPhone native format — treat as camera-authentic
+        if _is_heic(file_path, raw):
+            return 0.15
+
         entropy = _shannon_entropy(raw)
         scores.append(0.65 if (entropy < 6.5 or entropy > 7.95) else 0.3)
         scores.append(_byte_uniformity_score(raw))
