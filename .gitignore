@@ -5,6 +5,6 @@ __pycache__/
 .DS_Store
 *.egg-info/
 .env
-models/*.pt
-models/*.pth
+models/
 datasets/
+uploads/

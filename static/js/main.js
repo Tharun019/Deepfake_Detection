@@ -85,7 +85,29 @@ function showIdle() {
     resultsOutput.classList.add('hidden');
 }
 
-function startAnalysis() {
+function formatPercent(score) {
+    return `${(score * 100).toFixed(1)}%`;
+}
+
+function mapAnalysisResponse(data) {
+    const layers = [
+        data.layer_scores.metadata,
+        data.layer_scores.content,
+        data.layer_scores.binary,
+    ];
+    return {
+        verdict: data.verdict,
+        isFake: data.is_fake,
+        confidence: formatPercent(data.confidence),
+        scores: layers.map(score => ({
+            val: Math.round(score * 100),
+            label: formatPercent(score),
+        })),
+        unified: formatPercent(data.confidence),
+    };
+}
+
+async function startAnalysis() {
     resultsIdle.classList.add('hidden');
     resultsAnalyzing.classList.remove('hidden');
     resultsOutput.classList.add('hidden');
@@ -99,20 +121,27 @@ function startAnalysis() {
             step.classList.add('done');
         }, dones[i]);
     });
-    setTimeout(() => {
-        resultsAnalyzing.classList.add('hidden');
-        showResults({
-            verdict: 'DEEPFAKE DETECTED',
-            isFake: true,
-            confidence: '94.7%',
-            scores: [
-                { val: 88, label: '88.2%' },
-                { val: 96, label: '96.4%' },
-                { val: 91, label: '91.3%' },
-            ],
-            unified: '94.7%'
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('currentTab', currentTab);
+
+    try {
+        const response = await fetch('/analyze', {
+            method: 'POST',
+            body: formData,
         });
-    }, 5000);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Analysis failed');
+        }
+        resultsAnalyzing.classList.add('hidden');
+        showResults(mapAnalysisResponse(data));
+    } catch (err) {
+        resultsAnalyzing.classList.add('hidden');
+        showIdle();
+        alert(err.message || 'Analysis failed. Please try again.');
+    }
 }
 
 function showResults(data) {
