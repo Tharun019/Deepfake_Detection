@@ -68,7 +68,7 @@ body {
     padding: 0 2rem;
 }
 .header-inner {
-    max-width: 1200px; margin: 0 auto;
+    max-width: 1440px; margin: 0 auto;
     height: 60px;
     display: flex; align-items: center; justify-content: space-between;
 }
@@ -101,8 +101,8 @@ body {
 /* ── Hero ────────────────────────────────────────────── */
 .hero {
     position: relative; z-index: 1;
-    max-width: 1200px; margin: 0 auto;
-    padding: 4.5rem 2rem 3rem;
+    max-width: 1440px; margin: 0 auto;
+    padding: 4.5rem 1.5rem 3rem;
     border-bottom: 1px solid var(--border);
 }
 .hero-label {
@@ -145,8 +145,8 @@ body {
 /* ── Main Panel ──────────────────────────────────────── */
 .main-panel {
     position: relative; z-index: 1;
-    max-width: 1200px; margin: 0 auto;
-    padding: 2rem;
+    max-width: 1440px; margin: 0 auto;
+    padding: 2rem 1.5rem;
 }
 
 /* ── Tabs ────────────────────────────────────────────── */
