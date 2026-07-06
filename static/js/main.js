@@ -83,6 +83,11 @@ function showIdle() {
     resultsIdle.classList.remove('hidden');
     resultsAnalyzing.classList.add('hidden');
     resultsOutput.classList.add('hidden');
+    // Reset Grad-CAM back to placeholder
+    const gradcamImg  = document.getElementById('gradcamImg');
+    const xaiPholder  = document.getElementById('xaiPlaceholder');
+    if (gradcamImg) gradcamImg.classList.add('hidden');
+    if (xaiPholder) xaiPholder.classList.remove('hidden');
 }
 
 function formatPercent(score) {
@@ -96,14 +101,15 @@ function mapAnalysisResponse(data) {
         data.layer_scores.binary,
     ];
     return {
-        verdict: data.verdict,
-        isFake: data.is_fake,
+        verdict:  data.verdict,
+        isFake:   data.is_fake,
         confidence: formatPercent(data.confidence),
         scores: layers.map(score => ({
-            val: Math.round(score * 100),
+            val:   Math.round(score * 100),
             label: formatPercent(score),
         })),
-        unified: formatPercent(data.confidence),
+        unified:  formatPercent(data.confidence),
+        gradcam:  data.gradcam_b64 || null,
     };
 }
 
@@ -125,6 +131,13 @@ async function startAnalysis() {
     const formData = new FormData();
     formData.append('file', selectedFile);
     formData.append('currentTab', currentTab);
+
+    // Send toggle states so backend only runs enabled layers
+    const toggleInputs = document.querySelectorAll('.layer-toggle input[type="checkbox"]');
+    formData.append('layer_metadata', toggleInputs[0]?.checked ? '1' : '0');
+    formData.append('layer_content',  toggleInputs[1]?.checked ? '1' : '0');
+    formData.append('layer_binary',   toggleInputs[2]?.checked ? '1' : '0');
+    formData.append('layer_xai',      toggleInputs[3]?.checked ? '1' : '0');
 
     try {
         const response = await fetch('/analyze', {
@@ -160,6 +173,18 @@ function showResults(data) {
         }, i * 150);
     });
     document.getElementById('unifiedVal').textContent = data.unified;
+
+    // Render Grad-CAM if available, otherwise show placeholder
+    const gradcamImg = document.getElementById('gradcamImg');
+    const xaiPholder = document.getElementById('xaiPlaceholder');
+    if (data.gradcam) {
+        gradcamImg.src = 'data:image/jpeg;base64,' + data.gradcam;
+        gradcamImg.classList.remove('hidden');
+        xaiPholder.classList.add('hidden');
+    } else {
+        gradcamImg.classList.add('hidden');
+        xaiPholder.classList.remove('hidden');
+    }
 }
 
 document.getElementById('resetBtn').addEventListener('click', () => {
