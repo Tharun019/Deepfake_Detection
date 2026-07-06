@@ -3,10 +3,7 @@ WEIGHTS = {
     "content": 0.45,
     "binary": 0.25,
 }
-
-FAKE_THRESHOLD = 0.5
-
-
+FAKE_THRESHOLD = 0.35
 def fuse_scores(metadata: float, content: float, binary: float) -> dict:
     """Weighted average of layer scores; returns verdict and confidence."""
     confidence = (
