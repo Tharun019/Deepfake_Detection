@@ -69,55 +69,54 @@ def generate_gradcam(file_path: str):
     try:
         model = _get_image_model()
 
-        activations = [None]
-        gradients   = [None]
+        # ── Capture the feature map via a forward hook ──────────────────
+        feature_map = [None]
 
-        def _fwd(module, inp, out):
-            activations[0] = out
+        def _save_fmap(module, inp, out):
+            feature_map[0] = out          # keep in computation graph
 
-        def _bwd(module, grad_in, grad_out):
-            gradients[0] = grad_out[0]
-
-        # Hook into the final 1×1 conv — good spatial resolution for CAM
-        target = model.conv_head
-        h_fwd = target.register_forward_hook(_fwd)
-        h_bwd = target.register_full_backward_hook(_bwd)
+        target  = model.conv_head
+        handle  = target.register_forward_hook(_save_fmap)
 
         img_orig = Image.open(file_path).convert('RGB')
 
-        # Cap image size so base64 payload stays reasonable
+        # Cap size so the returned base64 stays reasonable
         max_side = 800
         w, h = img_orig.size
         if max(w, h) > max_side:
-            scale = max_side / max(w, h)
+            scale    = max_side / max(w, h)
             img_orig = img_orig.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
 
-        tensor = _transform(img_orig).unsqueeze(0)  # [1, 3, 224, 224]
+        tensor = _transform(img_orig).unsqueeze(0)   # [1, 3, 224, 224]
 
         model.zero_grad()
-        # NOTE: no torch.no_grad() here — we need the computation graph
+        # Forward pass WITHOUT no_grad — graph is required for backward
         outputs = model(tensor)
-        score = outputs[0, 0]   # class 0 = fake
+
+        handle.remove()
+
+        fmap = feature_map[0]             # [1, C, H, W] still in graph
+        fmap.retain_grad()                # allow .grad on a non-leaf tensor
+
+        score = outputs[0, 0]             # class 0 = fake
         score.backward()
 
-        h_fwd.remove()
-        h_bwd.remove()
-
-        if activations[0] is None or gradients[0] is None:
+        if fmap.grad is None:
             return None
 
-        acts  = activations[0].detach().squeeze(0)   # [C, H, W]
-        grads = gradients[0].detach().squeeze(0)     # [C, H, W]
+        # ── Compute Grad-CAM ─────────────────────────────────────────────
+        grads = fmap.grad.detach().squeeze(0)      # [C, H, W]
+        acts  = fmap.detach().squeeze(0)           # [C, H, W]
 
-        weights = grads.mean(dim=(1, 2))             # global avg pool
-        cam = (weights[:, None, None] * acts).sum(0) # [H, W]
-        cam = torch.relu(cam).numpy()
+        weights = grads.mean(dim=(1, 2))           # global avg-pool → [C]
+        cam     = (weights[:, None, None] * acts).sum(0)   # [H, W]
+        cam     = torch.relu(cam).numpy()
 
         if cam.max() == 0:
             return None
-        cam = cam / cam.max()   # normalise to [0, 1]
+        cam = cam / cam.max()            # normalise to [0, 1]
 
-        # Resize CAM to match (possibly downscaled) original image
+        # ── Build heatmap and blend ──────────────────────────────────────
         orig_w, orig_h = img_orig.size
         cam_pil = Image.fromarray((cam * 255).astype(np.uint8))
         cam_pil = cam_pil.resize((orig_w, orig_h), Image.BILINEAR)
@@ -129,7 +128,6 @@ def generate_gradcam(file_path: str):
         b = np.clip(cam_np * 3.0 - 2.0, 0, 1)
         heatmap = (np.stack([r, g, b], axis=-1) * 255).astype(np.uint8)
 
-        # Blend with original image
         orig_np = np.array(img_orig)
         blended = (0.55 * orig_np + 0.45 * heatmap).clip(0, 255).astype(np.uint8)
 
@@ -140,3 +138,4 @@ def generate_gradcam(file_path: str):
 
     except Exception:
         return None
+
