@@ -5,14 +5,14 @@ import numpy as np
 from collections import Counter
 
 
-def analyze(file_path: str, media_type: str) -> float:
+def analyze(file_path: str, media_type: str):
     if media_type == 'image':
         return _analyze_image(file_path)
     elif media_type == 'video':
         return _analyze_video(file_path)
     elif media_type == 'audio':
         return _analyze_audio(file_path)
-    return 0.5
+    return 0.5, {}
 
 
 def _shannon_entropy(data: bytes) -> float:
@@ -71,7 +71,6 @@ def _is_heic(file_path: str, raw: bytes) -> bool:
     ext = os.path.splitext(file_path)[1].lower()
     if ext in ('.heic', '.heif'):
         return True
-    # check ftyp box for heic/heif magic bytes
     if len(raw) >= 12:
         ftyp = raw[4:8]
         brand = raw[8:12]
@@ -80,37 +79,90 @@ def _is_heic(file_path: str, raw: bytes) -> bool:
     return False
 
 
-def _analyze_image(file_path: str) -> float:
+def _analyze_image(file_path: str):
     scores = []
+    features = {}
+
     try:
         with open(file_path, 'rb') as f:
             raw = f.read()
 
-        # HEIC is Apple iPhone native format — treat as camera-authentic
         if _is_heic(file_path, raw):
-            return 0.15
+            features['heic_format'] = {
+                'label': 'HEIC format — Apple iPhone native, camera-authentic',
+                'contribution': 0.15,
+                'direction': 'authentic'
+            }
+            return 0.15, features
 
         entropy = _shannon_entropy(raw)
-        scores.append(0.65 if (entropy < 6.5 or entropy > 7.95) else 0.3)
-        scores.append(_byte_uniformity_score(raw))
+        if entropy < 6.5 or entropy > 7.95:
+            entropy_score = 0.65
+            features['shannon_entropy'] = {
+                'label': f'Shannon entropy {entropy:.3f} — outside normal camera range (6.5–7.95)',
+                'contribution': 0.65,
+                'direction': 'suspicious'
+            }
+        else:
+            entropy_score = 0.30
+            features['shannon_entropy'] = {
+                'label': f'Shannon entropy {entropy:.3f} — within normal camera range',
+                'contribution': 0.30,
+                'direction': 'authentic'
+            }
+        scores.append(entropy_score)
+
+        uniformity = _byte_uniformity_score(raw)
+        features['byte_uniformity'] = {
+            'label': f'Byte uniformity score: {uniformity:.3f}',
+            'contribution': uniformity,
+            'direction': 'suspicious' if uniformity > 0.7 else 'authentic'
+        }
+        scores.append(uniformity)
+
         ext = os.path.splitext(file_path)[1].lower()
         if ext in ('.jpg', '.jpeg'):
-            scores.append(_jpeg_quantization_score(file_path))
+            qt_score = _jpeg_quantization_score(file_path)
+            features['jpeg_quantization'] = {
+                'label': f'JPEG quantization table score: {qt_score:.3f}',
+                'contribution': qt_score,
+                'direction': 'suspicious' if qt_score > 0.4 else 'authentic'
+            }
+            scores.append(qt_score)
+
         try:
             from PIL import Image
             img = Image.open(file_path)
             w, h = img.size
             ratio = len(raw) / (w * h + 1)
-            scores.append(0.65 if (ratio < 0.3 or ratio > 5.0) else 0.3)
+            if ratio < 0.3 or ratio > 5.0:
+                features['bytes_per_pixel'] = {
+                    'label': f'Bytes-per-pixel ratio {ratio:.3f} — abnormal for camera image',
+                    'contribution': 0.65,
+                    'direction': 'suspicious'
+                }
+                scores.append(0.65)
+            else:
+                features['bytes_per_pixel'] = {
+                    'label': f'Bytes-per-pixel ratio {ratio:.3f} — normal',
+                    'contribution': 0.30,
+                    'direction': 'authentic'
+                }
+                scores.append(0.30)
         except Exception:
             pass
-        return round(sum(scores) / len(scores), 4) if scores else 0.5
+
+        final_score = round(sum(scores) / len(scores), 4) if scores else 0.5
+        return final_score, features
+
     except Exception:
-        return 0.5
+        return 0.5, {}
 
 
-def _analyze_video(file_path: str) -> float:
+def _analyze_video(file_path: str):
     flags = 0
+    features = {}
+
     try:
         with open(file_path, 'rb') as f:
             header = f.read(32)
@@ -118,20 +170,62 @@ def _analyze_video(file_path: str) -> float:
             size = f.tell()
             f.seek(0)
             sample = f.read(min(65536, size))
+
         if len(header) >= 8:
             if header[4:8] not in (b'ftyp', b'moov', b'mdat', b'free'):
                 flags += 1
-        if _shannon_entropy(sample) < 7.0:
+                features['invalid_container_header'] = {
+                    'label': 'Invalid MP4 container header boxes',
+                    'contribution': +0.25,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['container_header'] = {
+                    'label': 'Valid MP4 container header',
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
+
+        entropy = _shannon_entropy(sample)
+        if entropy < 7.0:
             flags += 1
-        if _byte_uniformity_score(sample) > 0.7:
+            features['video_entropy'] = {
+                'label': f'Low entropy {entropy:.3f} — expected >7.0 for compressed video',
+                'contribution': +0.25,
+                'direction': 'suspicious'
+            }
+        else:
+            features['video_entropy'] = {
+                'label': f'Entropy {entropy:.3f} — normal for compressed video',
+                'contribution': 0.0,
+                'direction': 'authentic'
+            }
+
+        uniformity = _byte_uniformity_score(sample)
+        if uniformity > 0.7:
             flags += 1
-        return round(min(flags * 0.25, 0.95), 4)
+            features['video_uniformity'] = {
+                'label': f'High byte uniformity {uniformity:.3f} — suspicious for video',
+                'contribution': +0.25,
+                'direction': 'suspicious'
+            }
+        else:
+            features['video_uniformity'] = {
+                'label': f'Byte uniformity {uniformity:.3f} — normal',
+                'contribution': 0.0,
+                'direction': 'authentic'
+            }
+
+        return round(min(flags * 0.25, 0.95), 4), features
+
     except Exception:
-        return 0.5
+        return 0.5, {}
 
 
-def _analyze_audio(file_path: str) -> float:
+def _analyze_audio(file_path: str):
     flags = 0
+    features = {}
+
     try:
         with open(file_path, 'rb') as f:
             header = f.read(16)
@@ -139,22 +233,85 @@ def _analyze_audio(file_path: str) -> float:
             size = f.tell()
             f.seek(0)
             sample = f.read(min(65536, size))
+
         ext = os.path.splitext(file_path)[1].lower()
+
         if ext == '.wav':
             if not (header[:4] == b'RIFF' and header[8:12] == b'WAVE'):
                 flags += 2
+                features['wav_header'] = {
+                    'label': 'Invalid WAV header (RIFF/WAVE signature missing)',
+                    'contribution': +0.50,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['wav_header'] = {
+                    'label': 'Valid WAV header',
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
         elif ext == '.mp3':
             valid = (header[:3] == b'ID3' or
                      (header[0] == 0xFF and (header[1] & 0xE0) == 0xE0))
             if not valid:
                 flags += 1
+                features['mp3_header'] = {
+                    'label': 'Invalid MP3 header (ID3/sync bytes missing)',
+                    'contribution': +0.25,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['mp3_header'] = {
+                    'label': 'Valid MP3 header',
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
         elif ext == '.flac':
             if header[:4] != b'fLaC':
                 flags += 2
-        if _shannon_entropy(sample) < 6.0:
+                features['flac_header'] = {
+                    'label': 'Invalid FLAC header (fLaC magic bytes missing)',
+                    'contribution': +0.50,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['flac_header'] = {
+                    'label': 'Valid FLAC header',
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
+
+        entropy = _shannon_entropy(sample)
+        if entropy < 6.0:
             flags += 1
-        if _byte_uniformity_score(sample) > 0.65:
+            features['audio_entropy'] = {
+                'label': f'Low entropy {entropy:.3f} — expected >6.0 for real audio',
+                'contribution': +0.25,
+                'direction': 'suspicious'
+            }
+        else:
+            features['audio_entropy'] = {
+                'label': f'Entropy {entropy:.3f} — normal for audio',
+                'contribution': 0.0,
+                'direction': 'authentic'
+            }
+
+        uniformity = _byte_uniformity_score(sample)
+        if uniformity > 0.65:
             flags += 1
-        return round(min(flags * 0.25, 0.95), 4)
+            features['audio_uniformity'] = {
+                'label': f'High byte uniformity {uniformity:.3f} — suspicious for audio',
+                'contribution': +0.25,
+                'direction': 'suspicious'
+            }
+        else:
+            features['audio_uniformity'] = {
+                'label': f'Byte uniformity {uniformity:.3f} — normal',
+                'contribution': 0.0,
+                'direction': 'authentic'
+            }
+
+        return round(min(flags * 0.25, 0.95), 4), features
+
     except Exception:
-        return 0.5
+        return 0.5, {}
