@@ -50,7 +50,7 @@ def _jpeg_quantization_score(file_path: str) -> float:
             else:
                 i += 1
         if not qt_tables:
-            return 0.6
+            return 0.3
         for qt in qt_tables:
             if len(qt) < 65:
                 continue
@@ -60,9 +60,7 @@ def _jpeg_quantization_score(file_path: str) -> float:
             avg = sum(table) / len(table)
             if avg < 2 or avg > 200:
                 flags += 1
-            if table[0] > min(table[1:8]):
-                flags += 1
-        return round(min(flags * 0.2, 0.95), 4)
+        return round(min(flags * 0.25, 0.95), 4)
     except Exception:
         return 0.5
 
@@ -96,10 +94,10 @@ def _analyze_image(file_path: str):
             return 0.15, features
 
         entropy = _shannon_entropy(raw)
-        if entropy < 6.5 or entropy > 7.95:
+        if entropy < 6.0 or entropy > 8.0:
             entropy_score = 0.65
             features['shannon_entropy'] = {
-                'label': f'Shannon entropy {entropy:.3f} — outside normal camera range (6.5–7.95)',
+                'label': f'Shannon entropy {entropy:.3f} — outside normal camera range (6.0–8.0)',
                 'contribution': 0.65,
                 'direction': 'suspicious'
             }
@@ -113,23 +111,35 @@ def _analyze_image(file_path: str):
         scores.append(entropy_score)
 
         uniformity = _byte_uniformity_score(raw)
+        if uniformity > 0.90:
+            uniformity_contribution = 0.30
+            uniformity_direction = 'suspicious'
+        else:
+            uniformity_contribution = min(uniformity, 0.30)
+            uniformity_direction = 'authentic'
         features['byte_uniformity'] = {
             'label': f'Byte uniformity score: {uniformity:.3f}',
-            'contribution': uniformity,
-            'direction': 'suspicious' if uniformity > 0.7 else 'authentic'
+            'contribution': uniformity_contribution,
+            'direction': uniformity_direction
         }
-        scores.append(uniformity)
+        scores.append(uniformity_contribution)
 
         ext = os.path.splitext(file_path)[1].lower()
         if ext in ('.jpg', '.jpeg'):
             qt_score = _jpeg_quantization_score(file_path)
             features['jpeg_quantization'] = {
                 'label': f'JPEG quantization table score: {qt_score:.3f}',
-                'contribution': qt_score,
-                'direction': 'suspicious' if qt_score > 0.4 else 'authentic'
+                'contribution': qt_score * 0.5,
+                'direction': 'suspicious' if qt_score > 0.6 else 'authentic'
             }
-            scores.append(qt_score)
-
+            scores.append(qt_score * 0.5)
+        elif ext == '.png':
+            features['png_no_qt'] = {
+                'label': 'PNG format — no JPEG quantization artifacts (expected for lossless format)',
+                'contribution': 0.30,
+                'direction': 'neutral'
+            }
+            scores.append(0.30)
         try:
             from PIL import Image
             img = Image.open(file_path)
@@ -157,70 +167,6 @@ def _analyze_image(file_path: str):
 
     except Exception:
         return 0.5, {}
-
-
-def _analyze_video(file_path: str):
-    flags = 0
-    features = {}
-
-    try:
-        with open(file_path, 'rb') as f:
-            header = f.read(32)
-            f.seek(0, 2)
-            size = f.tell()
-            f.seek(0)
-            sample = f.read(min(65536, size))
-
-        if len(header) >= 8:
-            if header[4:8] not in (b'ftyp', b'moov', b'mdat', b'free'):
-                flags += 1
-                features['invalid_container_header'] = {
-                    'label': 'Invalid MP4 container header boxes',
-                    'contribution': +0.25,
-                    'direction': 'suspicious'
-                }
-            else:
-                features['container_header'] = {
-                    'label': 'Valid MP4 container header',
-                    'contribution': 0.0,
-                    'direction': 'authentic'
-                }
-
-        entropy = _shannon_entropy(sample)
-        if entropy < 7.0:
-            flags += 1
-            features['video_entropy'] = {
-                'label': f'Low entropy {entropy:.3f} — expected >7.0 for compressed video',
-                'contribution': +0.25,
-                'direction': 'suspicious'
-            }
-        else:
-            features['video_entropy'] = {
-                'label': f'Entropy {entropy:.3f} — normal for compressed video',
-                'contribution': 0.0,
-                'direction': 'authentic'
-            }
-
-        uniformity = _byte_uniformity_score(sample)
-        if uniformity > 0.7:
-            flags += 1
-            features['video_uniformity'] = {
-                'label': f'High byte uniformity {uniformity:.3f} — suspicious for video',
-                'contribution': +0.25,
-                'direction': 'suspicious'
-            }
-        else:
-            features['video_uniformity'] = {
-                'label': f'Byte uniformity {uniformity:.3f} — normal',
-                'contribution': 0.0,
-                'direction': 'authentic'
-            }
-
-        return round(min(flags * 0.25, 0.95), 4), features
-
-    except Exception:
-        return 0.5, {}
-
 
 def _analyze_audio(file_path: str):
     flags = 0

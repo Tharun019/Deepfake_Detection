@@ -1,14 +1,27 @@
 import os
 import json
 import subprocess
+import io
 
 AI_SOFTWARE_SIGNATURES = [
     'stable diffusion', 'midjourney', 'dall-e', 'firefly',
     'runway', 'synthesia', 'deepfacelab', 'faceswap',
     'elevenlabs', 'murf', 'resemble', 'voicebox',
     'suno', 'udio', 'generator', 'ai generated',
-    'adobe firefly', 'canva', 'imagemagick'
+    'adobe firefly', 'canva', 'imagemagick', 'adobe photoshop'
 ]
+
+
+def _sniff_real_format(raw: bytes) -> str:
+    """Detect actual file format from content bytes, not extension."""
+    if len(raw) >= 12:
+        if raw[4:8] == b'ftyp' and raw[8:12] in (b'heic', b'heix', b'hevc', b'mif1'):
+            return 'heic'
+    if raw[:2] == b'\xff\xd8':
+        return 'jpeg'
+    if raw[:8] == b'\x89PNG\r\n\x1a\n':
+        return 'png'
+    return 'unknown'
 
 
 def analyze(file_path: str, media_type: str):
@@ -24,23 +37,58 @@ def analyze(file_path: str, media_type: str):
         return 0.5, {}
 
 
+def _get_heic_exif_tags(file_path: str):
+    """Extract EXIF from a HEIC container via pillow_heif and parse with exifread."""
+    import pillow_heif
+    import exifread
+    heif_file = pillow_heif.open_heif(file_path)
+    exif_bytes = None
+    for md in heif_file.info.get('exif', []) if isinstance(heif_file.info.get('exif'), list) else [heif_file.info.get('exif')]:
+        if md:
+            exif_bytes = md
+            break
+    if not exif_bytes:
+        return {}
+    if exif_bytes[:4] != b'Exif' and b'Exif\x00\x00' in exif_bytes[:16]:
+        idx = exif_bytes.index(b'Exif\x00\x00')
+        exif_bytes = exif_bytes[idx:]
+    try:
+        return exifread.process_file(io.BytesIO(exif_bytes), details=True)
+    except Exception:
+        return {}
+
+
 def _analyze_image(file_path: str):
     try:
-        import exifread
         with open(file_path, 'rb') as f:
-            tags = exifread.process_file(f, details=True)
+            raw = f.read()
+
+        real_format = _sniff_real_format(raw)
+
+        if real_format == 'heic':
+            tags = _get_heic_exif_tags(file_path)
+        else:
+            import exifread
+            with open(file_path, 'rb') as f:
+                tags = exifread.process_file(f, details=True)
 
         features = {}
 
         if not tags:
-            ext = os.path.splitext(file_path)[1].lower()
-            if ext == '.png':
+            if real_format == 'png':
                 features['no_exif_png'] = {
                     'label': 'No EXIF — PNG file',
                     'contribution': +0.60,
                     'direction': 'suspicious'
                 }
                 return 0.60, features
+            elif real_format == 'heic':
+                features['no_exif_heic'] = {
+                    'label': 'No EXIF — HEIC file (content-verified)',
+                    'contribution': +0.50,
+                    'direction': 'suspicious'
+                }
+                return 0.50, features
             else:
                 features['no_exif_jpeg'] = {
                     'label': 'No EXIF — JPEG file (strongly suspicious)',

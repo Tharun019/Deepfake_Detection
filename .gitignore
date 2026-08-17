@@ -8,3 +8,10 @@ __pycache__/
 models/
 datasets/
 uploads/
+
+# Trained model checkpoints — too large for git, kept locally only
+checkpoints/
+*.pth
+*.bin
+*.safetensors
+test.wav

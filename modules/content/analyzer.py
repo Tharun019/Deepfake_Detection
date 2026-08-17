@@ -3,10 +3,18 @@ import os
 import base64
 import torch
 import timm
+import cv2
 import numpy as np
 from PIL import Image
 from torchvision import transforms
+import pillow_heif
+
+pillow_heif.register_heif_opener()
+
 _image_model = None
+_face_cascade = None
+
+
 def _get_image_model():
     global _image_model
     if _image_model is not None:
@@ -19,11 +27,51 @@ def _get_image_model():
     model.eval()
     _image_model = model
     return model
+
+
+def _get_face_cascade():
+    global _face_cascade
+    if _face_cascade is None:
+        cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+        _face_cascade = cv2.CascadeClassifier(cascade_path)
+    return _face_cascade
+
+
+def _crop_to_face(img: Image.Image) -> Image.Image:
+    """Detect largest face and crop with margin. Falls back to full frame if none found."""
+    try:
+        cascade = _get_face_cascade()
+        img_np = np.array(img.convert('L'))  # grayscale for detection
+        faces = cascade.detectMultiScale(img_np, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+
+        if len(faces) == 0:
+            return img  # fallback — no face found, use full frame
+
+        # pick largest face by area
+        x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
+
+        # add 20% margin on each side
+        margin_x = int(w * 0.2)
+        margin_y = int(h * 0.2)
+        img_w, img_h = img.size
+
+        x0 = max(0, x - margin_x)
+        y0 = max(0, y - margin_y)
+        x1 = min(img_w, x + w + margin_x)
+        y1 = min(img_h, y + h + margin_y)
+
+        return img.crop((x0, y0, x1, y1))
+    except Exception:
+        return img  # fallback on any detection error
+
+
 _transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
+
+
 def analyze(file_path: str, media_type: str) -> float:
     if media_type == 'image':
         return _analyze_image(file_path)
@@ -32,10 +80,13 @@ def analyze(file_path: str, media_type: str) -> float:
     elif media_type == 'audio':
         return _analyze_audio(file_path)
     return 0.5
+
+
 def _analyze_image(file_path: str) -> float:
     try:
         model = _get_image_model()
         img = Image.open(file_path).convert('RGB')
+        img = _crop_to_face(img)
         tensor = _transform(img).unsqueeze(0)
         with torch.no_grad():
             outputs = model(tensor)
@@ -46,6 +97,8 @@ def _analyze_image(file_path: str) -> float:
         return round(min(max(fake_prob, 0.05), 0.95), 4)
     except Exception:
         return 0.5
+
+
 def _analyze_video(file_path: str) -> float:
     try:
         from modules.content.video_analyzer import analyze_video
@@ -53,6 +106,8 @@ def _analyze_video(file_path: str) -> float:
         return result.get("score", 0.5)
     except Exception:
         return 0.5
+
+
 def _analyze_audio(file_path: str) -> float:
     try:
         from modules.content.audio_analyzer import analyze_audio
@@ -79,6 +134,7 @@ def generate_gradcam(file_path: str):
         handle  = target.register_forward_hook(_save_fmap)
 
         img_orig = Image.open(file_path).convert('RGB')
+        img_orig = _crop_to_face(img_orig)  # match the crop used in scoring
 
         # Cap size so the returned base64 stays reasonable
         max_side = 800
@@ -138,4 +194,3 @@ def generate_gradcam(file_path: str):
 
     except Exception:
         return None
-
