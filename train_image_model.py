@@ -10,6 +10,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 def main():
     DATASET_PATH = 'datasets/rvf10k/rvf10k'
     MODEL_SAVE_PATH = 'models/image/efficientnet_b4.pth'
+    os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
     EPOCHS = 5
     BATCH_SIZE = 32
     LR = 1e-4

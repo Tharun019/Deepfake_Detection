@@ -72,17 +72,22 @@ _transform = transforms.Compose([
 ])
 
 
-def analyze(file_path: str, media_type: str) -> float:
+def analyze(file_path: str, media_type: str):
+    """Returns (score, features). `features` is a diagnostic dict for the
+    XAI panel — {} for image/video (no per-run diagnostics defined yet),
+    populated for audio with the raw Wav2Vec2 output so failures/edge
+    cases (short clips, model load errors) are visible instead of just
+    collapsing into a neutral 0.5 score with no explanation."""
     if media_type == 'image':
         return _analyze_image(file_path)
     elif media_type == 'video':
         return _analyze_video(file_path)
     elif media_type == 'audio':
         return _analyze_audio(file_path)
-    return 0.5
+    return 0.5, {}
 
 
-def _analyze_image(file_path: str) -> float:
+def _analyze_image(file_path: str):
     try:
         model = _get_image_model()
         img = Image.open(file_path).convert('RGB')
@@ -94,27 +99,27 @@ def _analyze_image(file_path: str) -> float:
         probs = torch.softmax(outputs, dim=1).squeeze()
         # class 0 fake, class 1 = real (ImageFolder sorts alphabetically)
         fake_prob = float(probs[0])
-        return round(min(max(fake_prob, 0.05), 0.95), 4)
+        return round(min(max(fake_prob, 0.05), 0.95), 4), {}
     except Exception:
-        return 0.5
+        return 0.5, {}
 
 
-def _analyze_video(file_path: str) -> float:
+def _analyze_video(file_path: str):
     try:
         from modules.content.video_analyzer import analyze_video
         result = analyze_video(file_path)
-        return result.get("score", 0.5)
+        return result.get("score", 0.5), result.get("features", {})
     except Exception:
-        return 0.5
+        return 0.5, {}
 
 
-def _analyze_audio(file_path: str) -> float:
+def _analyze_audio(file_path: str):
     try:
         from modules.content.audio_analyzer import analyze_audio
         result = analyze_audio(file_path)
-        return result.get("score", 0.5)
-    except Exception:
-        return 0.5
+        return result.get("score", 0.5), result.get("features", {})
+    except Exception as e:
+        return 0.5, {'error': f'content analyzer dispatch failed: {e}'}
 
 
 def generate_gradcam(file_path: str):

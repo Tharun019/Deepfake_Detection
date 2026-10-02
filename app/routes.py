@@ -45,8 +45,14 @@ def analyze():
             metadata_score    = 0.5
             metadata_features = {}
 
-        # L2 — returns float only
-        content_score = analyze_content(save_path, media_type) if run_content else 0.5
+        # L2 — returns (score, features) tuple
+        if run_content:
+            content_result   = analyze_content(save_path, media_type)
+            content_score    = content_result[0]
+            content_features = content_result[1]
+        else:
+            content_score    = 0.5
+            content_features = {}
 
         # L3 — returns (score, features) tuple
         if run_binary:
@@ -63,8 +69,21 @@ def analyze():
         # Attach feature breakdowns to response
         result['xai'] = {
             'metadata_features': metadata_features,
+            'content_features':  content_features,
             'binary_features':   binary_features
         }
+
+        # Honesty flag — L2 video score is an unfine-tuned VideoMAE embedding
+        # heuristic with hand-picked, uncalibrated constants. Not a validated
+        # classifier output. Surface this so it can't be mistaken for one.
+        if media_type == 'video' and run_content:
+            result['xai']['content_features'] = {
+                'video_heuristic_warning': {
+                    'label': 'L2 video score is derived from unfine-tuned VideoMAE embedding statistics with uncalibrated constants — not a validated classifier output.',
+                    'contribution': None,
+                    'direction': 'unvalidated'
+                }
+            }
 
         # Grad-CAM — image only, XAI + content toggles must be on
         if media_type == 'image' and run_xai and run_content:
@@ -72,6 +91,8 @@ def analyze():
             if gradcam:
                 result['gradcam_b64'] = gradcam
 
+    except Exception as e:
+        return jsonify({'error': f'Analysis failed: {str(e)}'}), 500
     finally:
         if os.path.exists(save_path):
             os.remove(save_path)

@@ -87,7 +87,7 @@ def _analyze_image(file_path: str):
 
         if _is_heic(file_path, raw):
             features['heic_format'] = {
-                'label': 'HEIC format — Apple iPhone native, camera-authentic',
+                'label': 'HEIC format — native camera container (iOS/Android), camera-authentic',
                 'contribution': 0.15,
                 'direction': 'authentic'
             }
@@ -242,8 +242,24 @@ def _analyze_audio(file_path: str):
                 'direction': 'authentic'
             }
 
+        # Lossy codecs (mp3/m4a/aac/ogg) entropy-code their bitstream as
+        # part of normal compression — that pushes byte distribution
+        # toward uniform regardless of whether the underlying content is
+        # real or synthetic speech, so it isn't a meaningful fake/real
+        # discriminator on compressed containers. Only treat high
+        # uniformity as suspicious on raw/lossless formats (wav/flac),
+        # matching how the image analyzer already scopes its JPEG-only
+        # quantization-table check instead of applying it everywhere.
         uniformity = _byte_uniformity_score(sample)
-        if uniformity > 0.65:
+        is_compressed = ext in ('.mp3', '.m4a', '.aac', '.ogg')
+
+        if is_compressed:
+            features['audio_uniformity'] = {
+                'label': f'Byte uniformity {uniformity:.3f} — not scored on compressed audio (entropy coding makes high uniformity expected here)',
+                'contribution': 0.0,
+                'direction': 'neutral'
+            }
+        elif uniformity > 0.65:
             flags += 1
             features['audio_uniformity'] = {
                 'label': f'High byte uniformity {uniformity:.3f} — suspicious for audio',
@@ -256,6 +272,111 @@ def _analyze_audio(file_path: str):
                 'contribution': 0.0,
                 'direction': 'authentic'
             }
+
+        return round(min(flags * 0.25, 0.95), 4), features
+
+    except Exception:
+        return 0.5, {}
+
+def _analyze_video(file_path: str):
+    flags = 0
+    features = {}
+
+    try:
+        with open(file_path, 'rb') as f:
+            header = f.read(64)
+            f.seek(0, 2)
+            size = f.tell()
+            f.seek(0)
+            sample = f.read(min(65536, size))
+
+        ext = os.path.splitext(file_path)[1].lower()
+
+        if ext in ('.mp4', '.mov', '.m4v'):
+            ftyp_ok = len(header) >= 12 and header[4:8] == b'ftyp'
+            known_brands = (b'isom', b'iso2', b'iso5', b'iso6', b'mp41', b'mp42',
+                             b'qt  ', b'M4V ', b'avc1', b'dash', b'mmp4')
+            brand_ok = ftyp_ok and header[8:12] in known_brands
+            if not ftyp_ok:
+                flags += 2
+                features['mp4_header'] = {
+                    'label': 'Invalid MP4/MOV header (ftyp box missing)',
+                    'contribution': +0.50,
+                    'direction': 'suspicious'
+                }
+            elif not brand_ok:
+                flags += 1
+                features['mp4_header'] = {
+                    'label': f"ftyp box present but brand {header[8:12]!r} is unrecognized",
+                    'contribution': +0.25,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['mp4_header'] = {
+                    'label': f"Valid MP4/MOV header (brand '{header[8:12].decode(errors='ignore').strip()}')",
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
+        elif ext == '.avi':
+            if not (header[:4] == b'RIFF' and header[8:12] == b'AVI '):
+                flags += 2
+                features['avi_header'] = {
+                    'label': 'Invalid AVI header (RIFF/AVI  signature missing)',
+                    'contribution': +0.50,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['avi_header'] = {
+                    'label': 'Valid AVI header',
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
+        elif ext in ('.mkv', '.webm'):
+            if header[:4] != b'\x1a\x45\xdf\xa3':
+                flags += 2
+                features['mkv_header'] = {
+                    'label': 'Invalid MKV/WebM header (EBML magic bytes missing)',
+                    'contribution': +0.50,
+                    'direction': 'suspicious'
+                }
+            else:
+                features['mkv_header'] = {
+                    'label': 'Valid MKV/WebM header',
+                    'contribution': 0.0,
+                    'direction': 'authentic'
+                }
+        else:
+            features['container_check'] = {
+                'label': f"Extension '{ext}' — no known container signature check implemented",
+                'contribution': 0.0,
+                'direction': 'neutral'
+            }
+
+        entropy = _shannon_entropy(sample)
+        if entropy < 6.0:
+            flags += 1
+            features['video_entropy'] = {
+                'label': f'Low entropy {entropy:.3f} — expected >6.0 for compressed video',
+                'contribution': +0.25,
+                'direction': 'suspicious'
+            }
+        else:
+            features['video_entropy'] = {
+                'label': f'Entropy {entropy:.3f} — normal for compressed video',
+                'contribution': 0.0,
+                'direction': 'authentic'
+            }
+
+        # Video codecs (H.264/H.265/VP9 etc.) entropy-code their bitstream —
+        # same reasoning as the audio analyzer's compressed-codec carve-out.
+        # High byte uniformity is expected here and isn't a meaningful
+        # fake/real discriminator, so it isn't scored.
+        uniformity = _byte_uniformity_score(sample)
+        features['video_uniformity'] = {
+            'label': f'Byte uniformity {uniformity:.3f} — not scored on compressed video (entropy coding makes high uniformity expected here)',
+            'contribution': 0.0,
+            'direction': 'neutral'
+        }
 
         return round(min(flags * 0.25, 0.95), 4), features
 

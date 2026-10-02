@@ -468,6 +468,48 @@ body {
     font-weight: 700; color: var(--cyan);
 }
 
+/* Computation verification */
+.computation-section {
+    padding: 1.1rem 1.6rem; border-bottom: 1px solid var(--border);
+}
+.computation-label {
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.14em; color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+}
+.computation-text {
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    color: var(--text);
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+}
+.computation-actions {
+    display: flex; align-items: center; gap: 0.8rem;
+    margin-top: 0.7rem;
+}
+.copy-btn {
+    background: none;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.5rem 0.9rem;
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.08em; color: var(--text-dim);
+    cursor: pointer; transition: all 0.2s;
+}
+.copy-btn:hover { color: var(--cyan); border-color: var(--border2); }
+.copy-confirm {
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    color: var(--cyan);
+}
+
 /* XAI */
 .xai-section { padding: 1.2rem 1.6rem; flex: 1; }
 .xai-label {

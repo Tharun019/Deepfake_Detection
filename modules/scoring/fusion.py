@@ -22,4 +22,8 @@ def fuse_scores(metadata: float, content: float, binary: float) -> dict:
             "content": round(content, 4),
             "binary": round(binary, 4),
         },
+        # Exposed so the frontend can render the weighted-sum computation
+        # without hardcoding a second copy of these constants.
+        "weights": WEIGHTS,
+        "threshold": FAKE_THRESHOLD,
     }

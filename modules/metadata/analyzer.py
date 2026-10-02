@@ -3,6 +3,8 @@ import json
 import subprocess
 import io
 
+# Branded AI/generation tool names found literally in metadata fields — a
+# near-certain signal (0.95) since real cameras never write these strings.
 AI_SOFTWARE_SIGNATURES = [
     'stable diffusion', 'midjourney', 'dall-e', 'firefly',
     'runway', 'synthesia', 'deepfacelab', 'faceswap',
@@ -10,6 +12,20 @@ AI_SOFTWARE_SIGNATURES = [
     'suno', 'udio', 'generator', 'ai generated',
     'adobe firefly', 'canva', 'imagemagick', 'adobe photoshop'
 ]
+
+# Generic non-camera encoder/muxer signatures — these mean the file was
+# produced or re-muxed by generic software (ffmpeg/libavformat, x264/x265,
+# HandBrake, etc.) rather than written directly by a camera's own container
+# writer. This is weaker evidence than a branded AI tool name: real videos
+# that were re-encoded or re-shared through WhatsApp/Instagram/YouTube or a
+# third-party downloader/editor also commonly pick up these tags, so this is
+# scored as a moderate signal, not treated as equivalent to a literal AI
+# tool match. Needs validation against a labeled test set before trusting
+# its weight — see project notes.
+GENERIC_ENCODER_SIGNATURES = [
+    'lavf', 'ffmpeg', 'libav', 'libx264', 'libx265', 'x264', 'x265', 'handbrake'
+]
+GENERIC_ENCODER_WEIGHT = 0.50
 
 
 def _sniff_real_format(raw: bytes) -> str:
@@ -49,9 +65,9 @@ def _get_heic_exif_tags(file_path: str):
             break
     if not exif_bytes:
         return {}
-    if exif_bytes[:4] != b'Exif' and b'Exif\x00\x00' in exif_bytes[:16]:
+    if b'Exif\x00\x00' in exif_bytes[:16]:
         idx = exif_bytes.index(b'Exif\x00\x00')
-        exif_bytes = exif_bytes[idx:]
+        exif_bytes = exif_bytes[idx + 6:]  # skip past the marker itself, land on the TIFF header
     try:
         return exifread.process_file(io.BytesIO(exif_bytes), details=True)
     except Exception:
@@ -196,9 +212,18 @@ def _analyze_video(file_path: str):
         tags = {k.lower(): v.lower() for k, v in fmt.get('tags', {}).items()}
 
         encoder = tags.get('encoder', '') + tags.get('comment', '') + tags.get('software', '')
+
         if any(sig in encoder for sig in AI_SOFTWARE_SIGNATURES):
             flags.append(0.95)
             features['ai_encoder_tag'] = {'label': 'AI software encoder tag detected', 'contribution': +0.95, 'direction': 'suspicious'}
+        elif any(sig in encoder for sig in GENERIC_ENCODER_SIGNATURES):
+            flags.append(GENERIC_ENCODER_WEIGHT)
+            matched = next(sig for sig in GENERIC_ENCODER_SIGNATURES if sig in encoder)
+            features['generic_encoder_tag'] = {
+                'label': f"Non-camera encoder signature detected ('{matched}' in encoder tag) — file was produced/re-muxed by software, not written directly by a camera",
+                'contribution': +GENERIC_ENCODER_WEIGHT,
+                'direction': 'suspicious'
+            }
 
         if 'creation_time' not in tags:
             flags.append(0.2)
@@ -251,6 +276,14 @@ def _analyze_audio(file_path: str):
         if any(sig in encoder for sig in AI_SOFTWARE_SIGNATURES):
             flags.append(0.95)
             features['ai_encoder'] = {'label': 'AI software encoder signature', 'contribution': +0.95, 'direction': 'suspicious'}
+        elif any(sig in encoder for sig in GENERIC_ENCODER_SIGNATURES):
+            flags.append(GENERIC_ENCODER_WEIGHT)
+            matched = next(sig for sig in GENERIC_ENCODER_SIGNATURES if sig in encoder)
+            features['generic_encoder_tag'] = {
+                'label': f"Non-camera/recorder encoder signature detected ('{matched}' in encoder tag) — file was produced/re-muxed by software",
+                'contribution': +GENERIC_ENCODER_WEIGHT,
+                'direction': 'suspicious'
+            }
 
         streams = data.get('streams', [])
         audio_streams = [s for s in streams if s.get('codec_type') == 'audio']
