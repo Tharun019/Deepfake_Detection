@@ -1,0 +1,221 @@
+[setup] device=mps
+[setup] init=/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_3
+[setup] output=/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_mlaad_ft_v1
+
+[mlaad] excluded: ['Edge-TTS']
+[mlaad] train: 55 systems | 10007 clips (4507 real, 5500 fake)
+[mlaad] val  : 8 held-out systems ['Chatterbox', 'Index-TTS-2.0', 'Indri-TTS-0.1', 'Llasa-8B', 'Mars5', 'MatchaTTS', 'VoxCPM-0.5B', 'facebook_mms-tts-eng']
+[mlaad]        3 held-out books | 2363 clips (1563 real, 800 fake)
+[mlaad] German test: 2720 clips (1320 real, 1400 fake)
+[ASVspoofDataset] /Users/tharun/.cache/kagglehub/datasets/anishsarkar22/asvpoof-2019-dataset-la/versions/1/LA/ASVspoof2019_LA_train/flac: 2430 samples (1290 bonafide, 1140 spoof) | augment=True
+
+[train set] MLAAD 10007 + ITW replay 3000 + ASVspoof 2430 = 15437 (7297 real, 8140 fake)
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 7852.72it/s]
+Note: Illegal Audio-MPEG-Header 0x31303731 at offset 696960.
+Note: Trying to resync...
+Note: Hit end of (available) data during resync.
+
+[BEFORE] scoring epoch_3 with deployed inference ...
+   itw_test : real->REAL 98.7% | spoof->FAKE 88.9% | bal.acc 93.8% | AUC 0.991 | EER 5.1% | n=1500+1500 (load failures 0)
+   asv_dev  : real->REAL 100.0% | spoof->FAKE 95.0% | bal.acc 97.5% | AUC 0.999 | EER 2.7% | n=300+300 (load failures 0)
+   mlaad_val: real->REAL 83.0% | spoof->FAKE 9.8% | bal.acc 46.4% | AUC 0.441 | EER 53.0% | n=800+800 (load failures 0)
+   mlaad_de : real->REAL 78.3% | spoof->FAKE 32.1% | bal.acc 55.2% | AUC 0.576 | EER 44.1% | n=1320+1400 (load failures 0)
+[freeze_lower_layers] fine-tuning top 4 of 12 layers
+[train] 1930 batches/epoch, lr=2e-05, top 4 layers unfrozen
+[epoch 1] batch 50/1930 loss=0.3886 elapsed=38s ETA=23.9min
+[epoch 1] batch 100/1930 loss=0.1915 elapsed=1.1min ETA=20.9min
+[epoch 1] batch 150/1930 loss=0.4309 elapsed=1.7min ETA=19.6min
+[epoch 1] batch 200/1930 loss=0.5593 elapsed=2.1min ETA=18.6min
+[epoch 1] batch 250/1930 loss=0.3881 elapsed=2.6min ETA=17.8min
+[epoch 1] batch 300/1930 loss=0.2345 elapsed=3.1min ETA=17.1min
+[epoch 1] batch 350/1930 loss=0.1656 elapsed=3.6min ETA=16.4min
+[epoch 1] batch 400/1930 loss=0.3049 elapsed=4.1min ETA=15.8min
+[epoch 1] batch 450/1930 loss=0.3847 elapsed=4.6min ETA=15.2min
+[epoch 1] batch 500/1930 loss=0.1370 elapsed=5.1min ETA=14.6min
+[epoch 1] batch 550/1930 loss=0.4391 elapsed=5.6min ETA=14.0min
+[epoch 1] batch 600/1930 loss=0.1838 elapsed=6.1min ETA=13.5min
+[epoch 1] batch 650/1930 loss=0.4921 elapsed=6.6min ETA=13.0min
+[epoch 1] batch 700/1930 loss=0.0775 elapsed=7.1min ETA=12.5min
+[epoch 1] batch 750/1930 loss=0.1794 elapsed=7.6min ETA=11.9min
+[epoch 1] batch 800/1930 loss=0.2982 elapsed=8.1min ETA=11.4min
+[epoch 1] batch 850/1930 loss=0.1396 elapsed=8.6min ETA=10.9min
+[epoch 1] batch 900/1930 loss=0.3371 elapsed=9.1min ETA=10.4min
+[epoch 1] batch 950/1930 loss=0.1773 elapsed=9.6min ETA=9.9min
+[epoch 1] batch 1000/1930 loss=0.3717 elapsed=10.1min ETA=9.4min
+[epoch 1] batch 1050/1930 loss=0.3250 elapsed=10.6min ETA=8.9min
+[epoch 1] batch 1100/1930 loss=0.5901 elapsed=11.1min ETA=8.4min
+[epoch 1] batch 1150/1930 loss=0.4962 elapsed=11.6min ETA=7.9min
+[epoch 1] batch 1200/1930 loss=0.0803 elapsed=12.1min ETA=7.3min
+[epoch 1] batch 1250/1930 loss=0.5113 elapsed=12.6min ETA=6.8min
+[epoch 1] batch 1300/1930 loss=0.1948 elapsed=13.1min ETA=6.3min
+[epoch 1] batch 1350/1930 loss=0.1980 elapsed=13.6min ETA=5.8min
+[epoch 1] batch 1400/1930 loss=0.3386 elapsed=14.1min ETA=5.3min
+[epoch 1] batch 1450/1930 loss=0.3968 elapsed=14.5min ETA=4.8min
+[epoch 1] batch 1500/1930 loss=0.2443 elapsed=15.0min ETA=4.3min
+[epoch 1] batch 1550/1930 loss=0.2185 elapsed=15.5min ETA=3.8min
+[epoch 1] batch 1600/1930 loss=0.3091 elapsed=16.0min ETA=3.3min
+[epoch 1] batch 1650/1930 loss=0.1972 elapsed=16.5min ETA=2.8min
+[epoch 1] batch 1700/1930 loss=0.1390 elapsed=17.0min ETA=2.3min
+[epoch 1] batch 1750/1930 loss=0.1600 elapsed=17.5min ETA=1.8min
+[epoch 1] batch 1800/1930 loss=0.7950 elapsed=18.0min ETA=1.3min
+[epoch 1] batch 1850/1930 loss=0.0318 elapsed=18.5min ETA=48s
+[epoch 1] batch 1900/1930 loss=0.1043 elapsed=19.0min ETA=18s
+[epoch 1] train_loss=0.3113 time=19.5min
+[epoch 1] MLAAD val: real->REAL 52.9% | spoof->FAKE 69.0% | bal.acc 60.9% | AUC 0.665 | EER 38.9% | n=800+800 (load failures 0)
+[epoch 1] ITW val  : real->REAL 91.0% | spoof->FAKE 88.2% | bal.acc 89.6% | AUC 0.970 | EER 10.0% | n=500+500 (load failures 0)
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.44it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.44it/s]
+[epoch 2] batch 50/1930 loss=0.3715 elapsed=41s ETA=25.4min
+[epoch 2] batch 100/1930 loss=0.2733 elapsed=1.2min ETA=21.4min
+[epoch 2] batch 150/1930 loss=0.0752 elapsed=1.7min ETA=19.7min
+[epoch 2] batch 200/1930 loss=0.4246 elapsed=2.2min ETA=18.7min
+[epoch 2] batch 250/1930 loss=0.0535 elapsed=2.7min ETA=17.8min
+[epoch 2] batch 300/1930 loss=0.1709 elapsed=3.1min ETA=17.1min
+[epoch 2] batch 350/1930 loss=0.4731 elapsed=3.6min ETA=16.4min
+[epoch 2] batch 400/1930 loss=0.1093 elapsed=4.1min ETA=15.8min
+[epoch 2] batch 450/1930 loss=0.3231 elapsed=4.6min ETA=15.2min
+[epoch 2] batch 500/1930 loss=0.0750 elapsed=5.1min ETA=14.6min
+[epoch 2] batch 550/1930 loss=0.1529 elapsed=5.6min ETA=14.1min
+[epoch 2] batch 600/1930 loss=0.3455 elapsed=6.1min ETA=13.5min
+[epoch 2] batch 650/1930 loss=0.1167 elapsed=6.6min ETA=13.0min
+[epoch 2] batch 700/1930 loss=0.2041 elapsed=7.1min ETA=12.5min
+[epoch 2] batch 750/1930 loss=0.1848 elapsed=7.6min ETA=11.9min
+[epoch 2] batch 800/1930 loss=0.1637 elapsed=8.1min ETA=11.4min
+[epoch 2] batch 850/1930 loss=0.2919 elapsed=8.6min ETA=10.9min
+[epoch 2] batch 900/1930 loss=0.2015 elapsed=9.1min ETA=10.4min
+[epoch 2] batch 950/1930 loss=0.2447 elapsed=9.6min ETA=9.9min
+[epoch 2] batch 1000/1930 loss=0.2135 elapsed=10.1min ETA=9.4min
+[epoch 2] batch 1050/1930 loss=0.1581 elapsed=10.6min ETA=8.9min
+[epoch 2] batch 1100/1930 loss=0.2012 elapsed=11.1min ETA=8.4min
+[epoch 2] batch 1150/1930 loss=0.3215 elapsed=11.7min ETA=7.9min
+[epoch 2] batch 1200/1930 loss=0.2346 elapsed=12.2min ETA=7.4min
+[epoch 2] batch 1250/1930 loss=0.4420 elapsed=12.7min ETA=6.9min
+[epoch 2] batch 1300/1930 loss=0.3018 elapsed=13.2min ETA=6.4min
+[epoch 2] batch 1350/1930 loss=0.3068 elapsed=13.7min ETA=5.9min
+[epoch 2] batch 1400/1930 loss=0.3006 elapsed=14.2min ETA=5.4min
+[epoch 2] batch 1450/1930 loss=0.1943 elapsed=14.8min ETA=4.9min
+[epoch 2] batch 1500/1930 loss=0.0277 elapsed=15.3min ETA=4.4min
+[epoch 2] batch 1550/1930 loss=0.2307 elapsed=15.8min ETA=3.9min
+[epoch 2] batch 1600/1930 loss=0.1348 elapsed=16.3min ETA=3.4min
+[epoch 2] batch 1650/1930 loss=0.0534 elapsed=16.8min ETA=2.9min
+[epoch 2] batch 1700/1930 loss=0.0399 elapsed=17.3min ETA=2.3min
+[epoch 2] batch 1750/1930 loss=0.2900 elapsed=17.9min ETA=1.8min
+[epoch 2] batch 1800/1930 loss=0.1605 elapsed=18.4min ETA=1.3min
+[epoch 2] batch 1850/1930 loss=0.0635 elapsed=18.9min ETA=49s
+[epoch 2] batch 1900/1930 loss=0.8305 elapsed=19.4min ETA=18s
+[epoch 2] train_loss=0.2189 time=19.9min
+[epoch 2] MLAAD val: real->REAL 33.4% | spoof->FAKE 91.2% | bal.acc 62.3% | AUC 0.654 | EER 41.6% | n=800+800 (load failures 0)
+[epoch 2] ITW val  : real->REAL 88.0% | spoof->FAKE 89.0% | bal.acc 88.5% | AUC 0.961 | EER 11.6% | n=500+500 (load failures 0)
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.44it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.43it/s]
+[epoch 3] batch 50/1930 loss=0.1294 elapsed=43s ETA=26.8min
+[epoch 3] batch 100/1930 loss=0.1155 elapsed=1.2min ETA=22.4min
+[epoch 3] batch 150/1930 loss=0.1634 elapsed=1.7min ETA=20.6min
+[epoch 3] batch 200/1930 loss=0.1167 elapsed=2.2min ETA=19.4min
+[epoch 3] batch 250/1930 loss=0.4363 elapsed=2.8min ETA=18.5min
+[epoch 3] batch 300/1930 loss=0.1810 elapsed=3.3min ETA=17.8min
+[epoch 3] batch 350/1930 loss=0.0122 elapsed=3.8min ETA=17.1min
+[epoch 3] batch 400/1930 loss=0.0287 elapsed=4.3min ETA=16.4min
+[epoch 3] batch 450/1930 loss=0.0191 elapsed=4.8min ETA=15.8min
+[epoch 3] batch 500/1930 loss=0.3165 elapsed=5.3min ETA=15.3min
+[epoch 3] batch 550/1930 loss=0.2087 elapsed=5.9min ETA=14.8min
+[epoch 3] batch 600/1930 loss=0.0688 elapsed=6.4min ETA=14.2min
+[epoch 3] batch 650/1930 loss=0.0653 elapsed=6.9min ETA=13.7min
+[epoch 3] batch 700/1930 loss=0.1262 elapsed=7.4min ETA=13.1min
+[epoch 3] batch 750/1930 loss=0.0861 elapsed=7.9min ETA=12.5min
+[epoch 3] batch 800/1930 loss=0.0802 elapsed=8.4min ETA=11.9min
+[epoch 3] batch 850/1930 loss=0.3275 elapsed=9.0min ETA=11.4min
+[epoch 3] batch 900/1930 loss=0.2015 elapsed=9.4min ETA=10.8min
+[epoch 3] batch 950/1930 loss=0.0171 elapsed=9.9min ETA=10.3min
+[epoch 3] batch 1000/1930 loss=0.2938 elapsed=10.5min ETA=9.7min
+[epoch 3] batch 1050/1930 loss=0.0275 elapsed=11.0min ETA=9.2min
+[epoch 3] batch 1100/1930 loss=0.1002 elapsed=11.5min ETA=8.7min
+[epoch 3] batch 1150/1930 loss=0.5643 elapsed=12.0min ETA=8.2min
+[epoch 3] batch 1200/1930 loss=0.0599 elapsed=12.5min ETA=7.6min
+[epoch 3] batch 1250/1930 loss=0.0027 elapsed=13.1min ETA=7.1min
+[epoch 3] batch 1300/1930 loss=0.0245 elapsed=13.6min ETA=6.6min
+[epoch 3] batch 1350/1930 loss=0.6802 elapsed=14.0min ETA=6.0min
+[epoch 3] batch 1400/1930 loss=0.7341 elapsed=14.5min ETA=5.5min
+[epoch 3] batch 1450/1930 loss=0.2413 elapsed=15.1min ETA=5.0min
+[epoch 3] batch 1500/1930 loss=0.6740 elapsed=15.6min ETA=4.5min
+[epoch 3] batch 1550/1930 loss=0.0879 elapsed=16.1min ETA=3.9min
+[epoch 3] batch 1600/1930 loss=0.0371 elapsed=16.6min ETA=3.4min
+[epoch 3] batch 1650/1930 loss=0.0353 elapsed=17.1min ETA=2.9min
+[epoch 3] batch 1700/1930 loss=0.2762 elapsed=17.6min ETA=2.4min
+[epoch 3] batch 1750/1930 loss=0.2677 elapsed=18.2min ETA=1.9min
+[epoch 3] batch 1800/1930 loss=0.1680 elapsed=18.7min ETA=1.4min
+[epoch 3] batch 1850/1930 loss=0.0099 elapsed=19.2min ETA=50s
+[epoch 3] batch 1900/1930 loss=0.1621 elapsed=19.7min ETA=19s
+[epoch 3] train_loss=0.1816 time=20.2min
+[epoch 3] MLAAD val: real->REAL 34.8% | spoof->FAKE 88.1% | bal.acc 61.4% | AUC 0.665 | EER 39.5% | n=800+800 (load failures 0)
+[epoch 3] ITW val  : real->REAL 93.8% | spoof->FAKE 92.4% | bal.acc 93.1% | AUC 0.981 | EER 6.6% | n=500+500 (load failures 0)
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.37it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.36it/s]
+
+[select] best epoch by mean(MLAAD-val, ITW-val) bal.acc: 3 (77.3%)
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 6063.01it/s]
+Note: Illegal Audio-MPEG-Header 0x31303731 at offset 696960.
+Note: Trying to resync...
+Note: Hit end of (available) data during resync.
+
+=========== BEFORE (epoch_3) vs AFTER (selected epoch) ===========
+ITW test speakers
+   before: real->REAL 98.7% | spoof->FAKE 88.9% | bal.acc 93.8% | AUC 0.991 | EER 5.1% | n=1500+1500 (load failures 0)
+   after : real->REAL 67.3% | spoof->FAKE 98.2% | bal.acc 82.7% | AUC 0.981 | EER 6.5% | n=1500+1500 (load failures 0)
+ASVspoof dev
+   before: real->REAL 100.0% | spoof->FAKE 95.0% | bal.acc 97.5% | AUC 0.999 | EER 2.7% | n=300+300 (load failures 0)
+   after : real->REAL 99.0% | spoof->FAKE 93.3% | bal.acc 96.2% | AUC 0.993 | EER 4.3% | n=300+300 (load failures 0)
+MLAAD val (unseen systems)
+   before: real->REAL 83.0% | spoof->FAKE 9.8% | bal.acc 46.4% | AUC 0.441 | EER 53.0% | n=800+800 (load failures 0)
+   after : real->REAL 34.8% | spoof->FAKE 88.1% | bal.acc 61.4% | AUC 0.665 | EER 39.5% | n=800+800 (load failures 0)
+MLAAD German (report only)
+   before: real->REAL 78.3% | spoof->FAKE 32.1% | bal.acc 55.2% | AUC 0.576 | EER 44.1% | n=1320+1400 (load failures 0)
+   after : real->REAL 51.9% | spoof->FAKE 91.7% | bal.acc 71.8% | AUC 0.847 | EER 22.9% | n=1320+1400 (load failures 0)
+[FAKE] fake_edge_01_en-US-AriaNeural.mp3
+   before: 5.9% (max window 86.7%)
+   after : 99.9% (max window 99.9%)
+[FAKE] fake_edge_02_en-US-GuyNeural.mp3
+   before: 0.1% (max window 0.2%)
+   after : 99.9% (max window 99.9%)
+[FAKE] fake_edge_03_en-GB-RyanNeural.mp3
+   before: 1.5% (max window 48.6%)
+   after : 99.6% (max window 99.7%)
+[FAKE] fake_edge_04_en-GB-SoniaNeural.mp3
+   before: 0.7% (max window 58.3%)
+   after : 99.7% (max window 99.9%)
+[FAKE] fake_edge_05_en-IN-NeerjaNeural.mp3
+   before: 34.6% (max window 62.1%)
+   after : 99.7% (max window 99.9%)
+[FAKE] fake_edge_06_en-AU-WilliamNeural.mp3
+   before: 60.3% (max window 80.2%)
+   after : 99.7% (max window 99.8%)
+[FAKE] ElevenLabs_2026-10-08T18_32_23_Roger - Laid-Back, Casual, Resonant_pre_sp100_s50_sb75_v4.mp3
+   before: 21.7% (max window 86.1%)
+   after : 99.8% (max window 99.9%)
+[FAKE] ElevenLabs_2026-10-08T18_49_23_Siren - Natural realistic conversational voice_pvc_sp88_s14_sb68_v4.mp3
+   before: 0.0% (max window 0.0%)
+   after : 43.7% (max window 98.0%)
+[REAL] 3 Coding Languages For Big Tech.mp3
+   before: 0.1% (max window 0.3%)
+   after : 23.7% (max window 92.9%)
+[REAL] how I learned Java to break into FAANG (copy me).mp3
+   before: 2.6% (max window 50.5%)
+   after : 71.9% (max window 98.2%)
+[REAL] 4th Cross Road.m4a
+   before: 0.0% (max window 0.1%)
+   after : 9.7% (max window 16.9%)
+[REAL] 4th Cross Road 2.m4a
+   before: 0.1% (max window 0.5%)
+   after : 69.2% (max window 79.5%)
+[REAL] Standard recording 1.mp3
+   before: 0.5% (max window 7.9%)
+   after : 67.8% (max window 96.7%)
+[REAL] LA_E_5849185.flac
+   before: 0.0% (max window 0.0%)
+   after : 0.8% (max window 0.8%)
+
+=========== STOP RULE (pre-declared) ===========
+   PASS  external fakes caught 7/8 (need >= 4)
+   FAIL  real clips flagged 3/6 (need 0)
+   FAIL  ITW test bal.acc 82.7% (need >= 90.0)
+   PASS  ASVspoof dev bal.acc 96.2% (need >= 95.0)
+   VERDICT: REJECT - keep epoch_3, document limitation
+
+Saved: /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_mlaad_ft_v1/results.json   Best checkpoint: /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_mlaad_ft_v1/epoch_3

@@ -291,12 +291,27 @@ function renderFeatureBreakdown(xai) {
         rows.push(`Clip duration: ${cf.original_duration_sec}s`);
       if (cf.analyzed_window_sec !== undefined)
         rows.push(`Model analysis window: ${cf.analyzed_window_sec}s`);
-      if (cf.truncated === true) {
+      if (cf.windows_analyzed !== undefined) {
         rows.push(
-          `Clip longer than the window — truncated to the first ${cf.analyzed_window_sec}s`
+          `Windows analysed: ${cf.windows_analyzed} (${cf.aggregation || "median"} of per-window scores)`
         );
+        if (cf.window_fake_probs_pct) {
+          const probs = String(cf.window_fake_probs_pct)
+            .split(",")
+            .map((v) => parseFloat(v))
+            .filter((v) => !isNaN(v));
+          const flagged = probs.filter((v) => v >= 50).length;
+          rows.push(`Windows scored fake (>= 50%): ${flagged} of ${probs.length}`);
+        }
+        if (cf.window_fake_min !== undefined && cf.window_fake_max !== undefined) {
+          rows.push(
+            `Per-window fake probability range: ${(cf.window_fake_min * 100).toFixed(1)}% to ${(cf.window_fake_max * 100).toFixed(1)}%`
+          );
+        }
+      }
+      if (cf.truncated === true) {
+        rows.push("Long clip — windows were sampled evenly across the clip");
       } else if (
-        cf.truncated === false &&
         cf.original_duration_sec !== undefined &&
         cf.analyzed_window_sec !== undefined &&
         cf.original_duration_sec < cf.analyzed_window_sec
@@ -304,8 +319,6 @@ function renderFeatureBreakdown(xai) {
         rows.push(
           `Clip shorter than the window — zero-padded to fill ${cf.analyzed_window_sec}s (short clips can skew the score)`
         );
-      } else if (cf.truncated === false) {
-        rows.push("Clip matched the analysis window — no padding or truncation");
       }
       rows.forEach((text) => {
         const row = document.createElement("div");

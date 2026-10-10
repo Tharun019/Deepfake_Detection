@@ -1,0 +1,586 @@
+{
+ "best_epoch": 3,
+ "before": {
+  "itw_test": {
+   "n_real": 1500,
+   "n_fake": 1500,
+   "load_failures": 0,
+   "real_recall": 0.9866666666666667,
+   "fake_recall": 0.8886666666666667,
+   "bal_acc": 0.9376666666666666,
+   "auc": 0.9905693333333334,
+   "eer": 0.05066666666666665
+  },
+  "asv_dev": {
+   "n_real": 300,
+   "n_fake": 300,
+   "load_failures": 0,
+   "real_recall": 1.0,
+   "fake_recall": 0.95,
+   "bal_acc": 0.975,
+   "auc": 0.9985888888888887,
+   "eer": 0.026666666666666644
+  },
+  "mlaad_val": {
+   "n_real": 800,
+   "n_fake": 800,
+   "load_failures": 0,
+   "real_recall": 0.83,
+   "fake_recall": 0.0975,
+   "bal_acc": 0.46375,
+   "auc": 0.440946875,
+   "eer": 0.53
+  },
+  "mlaad_de": {
+   "n_real": 1320,
+   "n_fake": 1400,
+   "load_failures": 0,
+   "real_recall": 0.7825757575757576,
+   "fake_recall": 0.32071428571428573,
+   "bal_acc": 0.5516450216450217,
+   "auc": 0.5761709956709957,
+   "eer": 0.4408116883116883
+  },
+  "clips": {
+   "fake_edge_01_en-US-AriaNeural.mp3": {
+    "median": 0.059275217150570825,
+    "min": 0.000237717991694808,
+    "max": 0.8668590188026428,
+    "windows_pct": [
+     11.8,
+     86.7,
+     0.0,
+     0.1
+    ]
+   },
+   "fake_edge_02_en-US-GuyNeural.mp3": {
+    "median": 0.000925478248973377,
+    "min": 0.00030714983586221933,
+    "max": 0.002016061684116721,
+    "windows_pct": [
+     0.1,
+     0.2,
+     0.0,
+     0.0
+    ]
+   },
+   "fake_edge_03_en-GB-RyanNeural.mp3": {
+    "median": 0.015268059185473248,
+    "min": 0.0002840596134774387,
+    "max": 0.48594188690185547,
+    "windows_pct": [
+     3.0,
+     0.1,
+     0.0,
+     48.6
+    ]
+   },
+   "fake_edge_04_en-GB-SoniaNeural.mp3": {
+    "median": 0.0065006009535863996,
+    "min": 0.0008182492456398904,
+    "max": 0.5831051468849182,
+    "windows_pct": [
+     0.1,
+     1.0,
+     0.3,
+     58.3
+    ]
+   },
+   "fake_edge_05_en-IN-NeerjaNeural.mp3": {
+    "median": 0.34642648696899414,
+    "min": 0.04743403568863869,
+    "max": 0.6212668418884277,
+    "windows_pct": [
+     34.4,
+     34.9,
+     4.7,
+     62.1
+    ]
+   },
+   "fake_edge_06_en-AU-WilliamNeural.mp3": {
+    "median": 0.6027806997299194,
+    "min": 0.400217741727829,
+    "max": 0.8024353981018066,
+    "windows_pct": [
+     40.0,
+     57.9,
+     62.7,
+     80.2
+    ]
+   },
+   "ElevenLabs_2026-10-08T18_32_23_Roger - Laid-Back, Casual, Resonant_pre_sp100_s50_sb75_v4.mp3": {
+    "median": 0.21732938662171364,
+    "min": 0.0473613515496254,
+    "max": 0.8612367510795593,
+    "windows_pct": [
+     65.4,
+     9.3,
+     74.2,
+     86.1,
+     10.7,
+     47.7,
+     4.7,
+     4.8,
+     32.8,
+     10.3
+    ]
+   },
+   "ElevenLabs_2026-10-08T18_49_23_Siren - Natural realistic conversational voice_pvc_sp88_s14_sb68_v4.mp3": {
+    "median": 0.00025817472487688065,
+    "min": 0.00023329218674916774,
+    "max": 0.0003275768249295652,
+    "windows_pct": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "3 Coding Languages For Big Tech.mp3": {
+    "median": 0.0005283188074827194,
+    "min": 0.00028502155328169465,
+    "max": 0.0029717208817601204,
+    "windows_pct": [
+     0.3,
+     0.0,
+     0.0,
+     0.1,
+     0.0,
+     0.1,
+     0.1,
+     0.0,
+     0.2,
+     0.0,
+     0.0,
+     0.1,
+     0.1
+    ]
+   },
+   "how I learned Java to break into FAANG (copy me).mp3": {
+    "median": 0.025600857101380825,
+    "min": 0.0016240676632151008,
+    "max": 0.5045486688613892,
+    "windows_pct": [
+     3.0,
+     50.5,
+     0.2,
+     14.1,
+     1.9,
+     2.5,
+     2.6,
+     1.0,
+     27.6,
+     0.2,
+     0.9,
+     20.8
+    ]
+   },
+   "4th Cross Road.m4a": {
+    "median": 0.00033029509359039366,
+    "min": 0.00025894210557453334,
+    "max": 0.0005364990211091936,
+    "windows_pct": [
+     0.0,
+     0.1,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "4th Cross Road 2.m4a": {
+    "median": 0.0005684099160134792,
+    "min": 0.00030547677306458354,
+    "max": 0.004797318018972874,
+    "windows_pct": [
+     0.0,
+     0.1,
+     0.1,
+     0.0,
+     0.1,
+     0.5
+    ]
+   },
+   "Standard recording 1.mp3": {
+    "median": 0.004970029927790165,
+    "min": 0.0005337518523447216,
+    "max": 0.07923348993062973,
+    "windows_pct": [
+     0.1,
+     0.8,
+     0.1,
+     0.5,
+     7.9
+    ]
+   },
+   "LA_E_5849185.flac": {
+    "median": 0.00032395991729572415,
+    "min": 0.00032395991729572415,
+    "max": 0.00032395991729572415,
+    "windows_pct": [
+     0.0
+    ]
+   }
+  }
+ },
+ "after": {
+  "itw_test": {
+   "n_real": 1500,
+   "n_fake": 1500,
+   "load_failures": 0,
+   "real_recall": 0.6726666666666666,
+   "fake_recall": 0.982,
+   "bal_acc": 0.8273333333333333,
+   "auc": 0.9808524444444444,
+   "eer": 0.06533333333333334
+  },
+  "asv_dev": {
+   "n_real": 300,
+   "n_fake": 300,
+   "load_failures": 0,
+   "real_recall": 0.99,
+   "fake_recall": 0.9333333333333333,
+   "bal_acc": 0.9616666666666667,
+   "auc": 0.9928777777777777,
+   "eer": 0.043333333333333335
+  },
+  "mlaad_val": {
+   "n_real": 800,
+   "n_fake": 800,
+   "load_failures": 0,
+   "real_recall": 0.3475,
+   "fake_recall": 0.88125,
+   "bal_acc": 0.614375,
+   "auc": 0.6652046875,
+   "eer": 0.395
+  },
+  "mlaad_de": {
+   "n_real": 1320,
+   "n_fake": 1400,
+   "load_failures": 0,
+   "real_recall": 0.5189393939393939,
+   "fake_recall": 0.9171428571428571,
+   "bal_acc": 0.7180411255411255,
+   "auc": 0.8466174242424243,
+   "eer": 0.22867965367965365
+  },
+  "clips": {
+   "fake_edge_01_en-US-AriaNeural.mp3": {
+    "median": 0.9990010261535645,
+    "min": 0.9988297820091248,
+    "max": 0.999298095703125,
+    "windows_pct": [
+     99.9,
+     99.9,
+     99.9,
+     99.9
+    ]
+   },
+   "fake_edge_02_en-US-GuyNeural.mp3": {
+    "median": 0.9987077414989471,
+    "min": 0.9972907900810242,
+    "max": 0.9990752935409546,
+    "windows_pct": [
+     99.7,
+     99.9,
+     99.9,
+     99.9
+    ]
+   },
+   "fake_edge_03_en-GB-RyanNeural.mp3": {
+    "median": 0.9960551559925079,
+    "min": 0.9949550032615662,
+    "max": 0.9973168969154358,
+    "windows_pct": [
+     99.6,
+     99.7,
+     99.7,
+     99.5
+    ]
+   },
+   "fake_edge_04_en-GB-SoniaNeural.mp3": {
+    "median": 0.9974770247936249,
+    "min": 0.9966715574264526,
+    "max": 0.9985740184783936,
+    "windows_pct": [
+     99.8,
+     99.7,
+     99.9,
+     99.7
+    ]
+   },
+   "fake_edge_05_en-IN-NeerjaNeural.mp3": {
+    "median": 0.9974431693553925,
+    "min": 0.9915282726287842,
+    "max": 0.9992135763168335,
+    "windows_pct": [
+     99.7,
+     99.2,
+     99.8,
+     99.9
+    ]
+   },
+   "fake_edge_06_en-AU-WilliamNeural.mp3": {
+    "median": 0.9967734217643738,
+    "min": 0.9958192110061646,
+    "max": 0.9975681900978088,
+    "windows_pct": [
+     99.7,
+     99.7,
+     99.8,
+     99.6
+    ]
+   },
+   "ElevenLabs_2026-10-08T18_32_23_Roger - Laid-Back, Casual, Resonant_pre_sp100_s50_sb75_v4.mp3": {
+    "median": 0.9981625080108643,
+    "min": 0.9941996335983276,
+    "max": 0.9989418387413025,
+    "windows_pct": [
+     99.9,
+     99.8,
+     99.8,
+     99.4,
+     99.7,
+     99.5,
+     99.9,
+     99.8,
+     99.8,
+     99.7
+    ]
+   },
+   "ElevenLabs_2026-10-08T18_49_23_Siren - Natural realistic conversational voice_pvc_sp88_s14_sb68_v4.mp3": {
+    "median": 0.4371005892753601,
+    "min": 0.05832061544060707,
+    "max": 0.9800729155540466,
+    "windows_pct": [
+     63.9,
+     77.1,
+     5.8,
+     65.3,
+     70.5,
+     13.5,
+     98.0,
+     43.7,
+     16.0,
+     20.6,
+     42.4
+    ]
+   },
+   "3 Coding Languages For Big Tech.mp3": {
+    "median": 0.236537367105484,
+    "min": 0.006567418575286865,
+    "max": 0.9291911125183105,
+    "windows_pct": [
+     36.8,
+     18.3,
+     2.8,
+     29.5,
+     10.6,
+     92.9,
+     48.4,
+     20.4,
+     31.2,
+     3.2,
+     0.7,
+     23.7,
+     46.9
+    ]
+   },
+   "how I learned Java to break into FAANG (copy me).mp3": {
+    "median": 0.7194650769233704,
+    "min": 0.3337574303150177,
+    "max": 0.9816426038742065,
+    "windows_pct": [
+     94.3,
+     92.6,
+     43.6,
+     98.2,
+     98.1,
+     34.6,
+     33.4,
+     76.2,
+     67.7,
+     42.9,
+     64.6,
+     83.3
+    ]
+   },
+   "4th Cross Road.m4a": {
+    "median": 0.09665867686271667,
+    "min": 0.04055933281779289,
+    "max": 0.1689513623714447,
+    "windows_pct": [
+     16.9,
+     10.2,
+     9.1,
+     13.0,
+     4.1,
+     5.4
+    ]
+   },
+   "4th Cross Road 2.m4a": {
+    "median": 0.6923357546329498,
+    "min": 0.17758697271347046,
+    "max": 0.7952226996421814,
+    "windows_pct": [
+     17.8,
+     79.5,
+     62.0,
+     52.5,
+     76.5,
+     79.0
+    ]
+   },
+   "Standard recording 1.mp3": {
+    "median": 0.6780483722686768,
+    "min": 0.04903264343738556,
+    "max": 0.9670603275299072,
+    "windows_pct": [
+     10.1,
+     80.7,
+     4.9,
+     67.8,
+     96.7
+    ]
+   },
+   "LA_E_5849185.flac": {
+    "median": 0.007914464920759201,
+    "min": 0.007914464920759201,
+    "max": 0.007914464920759201,
+    "windows_pct": [
+     0.8
+    ]
+   }
+  }
+ },
+ "mlaad_split": {
+  "train_systems": [
+   "Cartesia.ai (Sonic-3)",
+   "DeepGram",
+   "FireRedTTS-2.0",
+   "FishTTS",
+   "Higgs-Audio-V2",
+   "Index-TTS-1.5",
+   "Kani-TTS-370M",
+   "Kitten-TTS-Nano-0.1",
+   "Kitten-TTS-Nano-0.2",
+   "Kyutai-TTS",
+   "Llasa-1B-Multilingual",
+   "Marvis-TTS",
+   "Maya1 TTS",
+   "MegaTTS3",
+   "MeloTTS",
+   "Metavoice-1B",
+   "Microsoft VibeVoice 1.5B",
+   "Microsoft VibeVoice Large",
+   "MiniCPM-o-2.6",
+   "Nari Dia-1.6B",
+   "Nari Dia2",
+   "NeuTTS-Air",
+   "OpenVoiceV2",
+   "Openaudio-S1-Mini",
+   "OuteTTS",
+   "Qwen2.5-Omni",
+   "RVC",
+   "Resemble.ai (April 12th, 2025)",
+   "Ringg Squirrel TTS v1.0",
+   "SoulX-Podcast",
+   "Spark-TTS-0.5B",
+   "Step-Audio-EditX",
+   "Supertonic",
+   "Veena",
+   "VoxCPM-1.5",
+   "Voxtream",
+   "WhisperSpeech",
+   "ZipVoice",
+   "e2-tts",
+   "f5-tts",
+   "griffin_lim",
+   "kokoro",
+   "microsoft_speecht5_tts",
+   "minimax_speech-02-turbo",
+   "minimax_speech-2.6-hd",
+   "optispeech",
+   "orpheus-tts-0.1-finetune",
+   "parler_tts_large_v1",
+   "parler_tts_mini_v0.1",
+   "parler_tts_mini_v1",
+   "sesame_csm",
+   "suno_bark",
+   "suno_bark-small",
+   "vixTTS",
+   "zonosTTS-v0.1"
+  ],
+  "val_systems": [
+   "Chatterbox",
+   "Index-TTS-2.0",
+   "Indri-TTS-0.1",
+   "Llasa-8B",
+   "Mars5",
+   "MatchaTTS",
+   "VoxCPM-0.5B",
+   "facebook_mms-tts-eng"
+  ],
+  "val_books": [
+   "northandsouth",
+   "pink_fairy_book",
+   "poisoned_pen"
+  ],
+  "excluded": [
+   "Edge-TTS"
+  ]
+ },
+ "args": {
+  "mlaad_dir": "/Users/tharun/Desktop/datasets/MLAAD-tiny",
+  "itw_dir": "/Users/tharun/Desktop/Deepfake_Detection/datasets/itw/release_in_the_wild",
+  "asv_root": "/Users/tharun/.cache/kagglehub/datasets/anishsarkar22/asvpoof-2019-dataset-la/versions/1",
+  "init_checkpoint": "/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_3",
+  "itw_split": "/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/split.json",
+  "output_dir": "/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_mlaad_ft_v1",
+  "epochs": 3,
+  "batch_size": 8,
+  "lr": 2e-05,
+  "unfreeze_top_layers": 4,
+  "num_workers": 2,
+  "n_val_systems": 8,
+  "val_real_frac": 0.15,
+  "itw_replay_per_class": 1500,
+  "asv_bonafide_fraction": 0.5,
+  "asv_spoof_fraction": 0.05,
+  "itw_val_per_class": 500,
+  "test_per_class": 1500,
+  "asv_dev_per_class": 300,
+  "mlaad_val_per_class": 800,
+  "de_per_class": 1500,
+  "mp3_prob": 0.3,
+  "no_augment": false,
+  "seed": 42,
+  "log_every": 50,
+  "fake_clips": [
+   "/Users/tharun/Desktop/sample inputs/AUD/fake_audio/fake_edge_01_en-US-AriaNeural.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/fake_audio/fake_edge_02_en-US-GuyNeural.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/fake_audio/fake_edge_03_en-GB-RyanNeural.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/fake_audio/fake_edge_04_en-GB-SoniaNeural.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/fake_audio/fake_edge_05_en-IN-NeerjaNeural.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/fake_audio/fake_edge_06_en-AU-WilliamNeural.mp3",
+   "/Users/tharun/Downloads/ElevenLabs_2026-10-08T18_32_23_Roger - Laid-Back, Casual, Resonant_pre_sp100_s50_sb75_v4.mp3",
+   "/Users/tharun/Downloads/ElevenLabs_2026-10-08T18_49_23_Siren - Natural realistic conversational voice_pvc_sp88_s14_sb68_v4.mp3"
+  ],
+  "real_clips": [
+   "/Users/tharun/Desktop/sample inputs/AUD/real_audio/3 Coding Languages For Big Tech.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/real_audio/how I learned Java to break into FAANG (copy me).mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/real_audio/4th Cross Road.m4a",
+   "/Users/tharun/Desktop/sample inputs/AUD/real_audio/4th Cross Road 2.m4a",
+   "/Users/tharun/Desktop/sample inputs/AUD/real_audio/Standard recording 1.mp3",
+   "/Users/tharun/Desktop/sample inputs/AUD/real_audio/LA_E_5849185.flac"
+  ],
+  "smoke": false
+ }
+}

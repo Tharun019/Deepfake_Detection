@@ -1,0 +1,153 @@
+[setup] device=mps  init=/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_asvspoof_augmented_v2/epoch_2
+[setup] output=/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1
+
+[split] speaker-disjoint, seed 582 (chosen from 2000 by clip-fraction/class-balance only)
+   train speakers=36  clips= 22199  bona-fide=14227  spoof=7972
+   val   speakers=11  clips=  4799  bona-fide=2960  spoof=1839
+   test  speakers= 7  clips=  4781  bona-fide=2776  spoof=2005
+   val speakers : Arnold Schwarzenegger, Bill Burr, Bill Clinton, Frank Sinatra, JFK, Jeff Goldblum, Kamala Harris, Milton Friedman, Mitch Hedberg, Tucker Carlson, Winston Churchill
+   test speakers: Ayn Rand, Christopher Hitchens, George Carlin, Gilbert Gottfried, Jimmy Carter, Lyndon Johnson, Richard Nixon
+[ASVspoofDataset] /Users/tharun/.cache/kagglehub/datasets/anishsarkar22/asvpoof-2019-dataset-la/versions/1/LA/ASVspoof2019_LA_train/flac: 6000 samples (2580 bonafide, 3420 spoof) | augment=True
+
+[train set] ASVspoof 6000 + ITW 8000 = 14000 clips (6580 bona-fide, 7420 spoof) | mp3_prob=0.3 | augment=True
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 8461.57it/s]
+
+[BEFORE] scoring the starting checkpoint with deployed inference ...
+   ITW test : real->REAL 56.7% | spoof->FAKE 76.1% | bal.acc 66.4% | AUC 0.730 | EER 34.5% | n=1500+1500 (load failures 0)
+   ASV dev  : real->REAL 100.0% | spoof->FAKE 88.0% | bal.acc 94.0% | AUC 0.998 | EER 2.0% | n=300+300 (load failures 0)
+[freeze_lower_layers] fine-tuning top 4 of 12 layers
+[train] 1750 batches/epoch, lr=2e-05, top 4 layers unfrozen
+[epoch 1] batch 50/1750 loss=0.5931 elapsed=37s ETA=21.0min
+[epoch 1] batch 100/1750 loss=0.2797 elapsed=1.1min ETA=18.4min
+[epoch 1] batch 150/1750 loss=0.1863 elapsed=1.6min ETA=17.2min
+[epoch 1] batch 200/1750 loss=0.3042 elapsed=2.1min ETA=16.3min
+[epoch 1] batch 250/1750 loss=0.1132 elapsed=2.6min ETA=15.6min
+[epoch 1] batch 300/1750 loss=0.3121 elapsed=3.1min ETA=14.9min
+[epoch 1] batch 350/1750 loss=0.4408 elapsed=3.6min ETA=14.3min
+[epoch 1] batch 400/1750 loss=0.1609 elapsed=4.1min ETA=13.7min
+[epoch 1] batch 450/1750 loss=1.0556 elapsed=4.6min ETA=13.2min
+[epoch 1] batch 500/1750 loss=0.2665 elapsed=5.0min ETA=12.6min
+[epoch 1] batch 550/1750 loss=0.0762 elapsed=5.5min ETA=12.1min
+[epoch 1] batch 600/1750 loss=0.3460 elapsed=6.0min ETA=11.6min
+[epoch 1] batch 650/1750 loss=0.3302 elapsed=6.5min ETA=11.1min
+[epoch 1] batch 700/1750 loss=0.0858 elapsed=7.0min ETA=10.5min
+[epoch 1] batch 750/1750 loss=0.2233 elapsed=7.5min ETA=10.0min
+[epoch 1] batch 800/1750 loss=0.1288 elapsed=8.0min ETA=9.5min
+[epoch 1] batch 850/1750 loss=0.0070 elapsed=8.5min ETA=9.0min
+[epoch 1] batch 900/1750 loss=0.1452 elapsed=9.0min ETA=8.5min
+[epoch 1] batch 950/1750 loss=0.0628 elapsed=9.5min ETA=8.0min
+[epoch 1] batch 1000/1750 loss=0.0273 elapsed=10.0min ETA=7.5min
+[epoch 1] batch 1050/1750 loss=0.0178 elapsed=10.5min ETA=7.0min
+[epoch 1] batch 1100/1750 loss=0.0319 elapsed=11.0min ETA=6.5min
+[epoch 1] batch 1150/1750 loss=0.2503 elapsed=11.4min ETA=6.0min
+[epoch 1] batch 1200/1750 loss=0.0664 elapsed=11.9min ETA=5.5min
+[epoch 1] batch 1250/1750 loss=0.0179 elapsed=12.4min ETA=5.0min
+[epoch 1] batch 1300/1750 loss=0.0477 elapsed=12.9min ETA=4.5min
+[epoch 1] batch 1350/1750 loss=0.2979 elapsed=13.4min ETA=4.0min
+[epoch 1] batch 1400/1750 loss=0.1137 elapsed=13.9min ETA=3.5min
+[epoch 1] batch 1450/1750 loss=0.0811 elapsed=14.4min ETA=3.0min
+[epoch 1] batch 1500/1750 loss=0.0558 elapsed=14.9min ETA=2.5min
+[epoch 1] batch 1550/1750 loss=0.0873 elapsed=15.4min ETA=2.0min
+[epoch 1] batch 1600/1750 loss=0.0557 elapsed=15.9min ETA=1.5min
+[epoch 1] batch 1650/1750 loss=0.0077 elapsed=16.4min ETA=59s
+[epoch 1] batch 1700/1750 loss=0.1951 elapsed=16.9min ETA=30s
+[epoch 1] batch 1750/1750 loss=0.0975 elapsed=17.3min ETA=0s
+[epoch 1] train_loss=0.1961 time=17.5min
+[epoch 1] ITW val : real->REAL 95.6% | spoof->FAKE 86.6% | bal.acc 91.1% | AUC 0.961 | EER 9.8% | n=500+500 (load failures 0)
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.96it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.94it/s]
+[epoch 2] batch 50/1750 loss=0.2809 elapsed=39s ETA=22.1min
+[epoch 2] batch 100/1750 loss=0.0044 elapsed=1.1min ETA=18.9min
+[epoch 2] batch 150/1750 loss=0.1035 elapsed=1.6min ETA=17.5min
+[epoch 2] batch 200/1750 loss=0.0174 elapsed=2.1min ETA=16.5min
+[epoch 2] batch 250/1750 loss=0.0017 elapsed=2.6min ETA=15.7min
+[epoch 2] batch 300/1750 loss=0.0049 elapsed=3.1min ETA=15.0min
+[epoch 2] batch 350/1750 loss=0.3043 elapsed=3.6min ETA=14.4min
+[epoch 2] batch 400/1750 loss=0.1525 elapsed=4.1min ETA=13.8min
+[epoch 2] batch 450/1750 loss=0.0214 elapsed=4.6min ETA=13.2min
+[epoch 2] batch 500/1750 loss=0.0512 elapsed=5.1min ETA=12.7min
+[epoch 2] batch 550/1750 loss=0.0039 elapsed=5.6min ETA=12.2min
+[epoch 2] batch 600/1750 loss=0.0855 elapsed=6.1min ETA=11.6min
+[epoch 2] batch 650/1750 loss=0.0032 elapsed=6.6min ETA=11.1min
+[epoch 2] batch 700/1750 loss=0.0103 elapsed=7.0min ETA=10.6min
+[epoch 2] batch 750/1750 loss=0.0094 elapsed=7.5min ETA=10.1min
+[epoch 2] batch 800/1750 loss=0.0074 elapsed=8.0min ETA=9.5min
+[epoch 2] batch 850/1750 loss=0.0723 elapsed=8.5min ETA=9.0min
+[epoch 2] batch 900/1750 loss=0.0136 elapsed=9.0min ETA=8.5min
+[epoch 2] batch 950/1750 loss=0.0050 elapsed=9.5min ETA=8.0min
+[epoch 2] batch 1000/1750 loss=0.2097 elapsed=10.0min ETA=7.5min
+[epoch 2] batch 1050/1750 loss=0.0492 elapsed=10.5min ETA=7.0min
+[epoch 2] batch 1100/1750 loss=0.0403 elapsed=11.0min ETA=6.5min
+[epoch 2] batch 1150/1750 loss=0.4273 elapsed=11.5min ETA=6.0min
+[epoch 2] batch 1200/1750 loss=0.0533 elapsed=12.0min ETA=5.5min
+[epoch 2] batch 1250/1750 loss=0.0319 elapsed=12.5min ETA=5.0min
+[epoch 2] batch 1300/1750 loss=0.3635 elapsed=13.0min ETA=4.5min
+[epoch 2] batch 1350/1750 loss=1.0036 elapsed=13.5min ETA=4.0min
+[epoch 2] batch 1400/1750 loss=0.0312 elapsed=14.0min ETA=3.5min
+[epoch 2] batch 1450/1750 loss=0.0142 elapsed=14.4min ETA=3.0min
+[epoch 2] batch 1500/1750 loss=0.0357 elapsed=14.9min ETA=2.5min
+[epoch 2] batch 1550/1750 loss=0.0570 elapsed=15.4min ETA=2.0min
+[epoch 2] batch 1600/1750 loss=0.0216 elapsed=15.9min ETA=1.5min
+[epoch 2] batch 1650/1750 loss=0.0036 elapsed=16.4min ETA=60s
+[epoch 2] batch 1700/1750 loss=0.0025 elapsed=16.9min ETA=30s
+[epoch 2] batch 1750/1750 loss=0.0010 elapsed=17.4min ETA=0s
+[epoch 2] train_loss=0.0842 time=17.6min
+[epoch 2] ITW val : real->REAL 98.2% | spoof->FAKE 83.4% | bal.acc 90.8% | AUC 0.977 | EER 7.8% | n=500+500 (load failures 0)
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.50it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.50it/s]
+[epoch 3] batch 50/1750 loss=0.0091 elapsed=39s ETA=21.9min
+[epoch 3] batch 100/1750 loss=0.0022 elapsed=1.1min ETA=18.8min
+[epoch 3] batch 150/1750 loss=0.3801 elapsed=1.6min ETA=17.4min
+[epoch 3] batch 200/1750 loss=0.0096 elapsed=2.1min ETA=16.5min
+[epoch 3] batch 250/1750 loss=0.3083 elapsed=2.6min ETA=15.7min
+[epoch 3] batch 300/1750 loss=0.3180 elapsed=3.1min ETA=15.1min
+[epoch 3] batch 350/1750 loss=0.0128 elapsed=3.6min ETA=14.5min
+[epoch 3] batch 400/1750 loss=0.2593 elapsed=4.1min ETA=13.9min
+[epoch 3] batch 450/1750 loss=0.0731 elapsed=4.6min ETA=13.3min
+[epoch 3] batch 500/1750 loss=0.0132 elapsed=5.1min ETA=12.7min
+[epoch 3] batch 550/1750 loss=0.0045 elapsed=5.6min ETA=12.2min
+[epoch 3] batch 600/1750 loss=0.0058 elapsed=6.1min ETA=11.7min
+[epoch 3] batch 650/1750 loss=0.1276 elapsed=6.6min ETA=11.1min
+[epoch 3] batch 700/1750 loss=0.0033 elapsed=7.1min ETA=10.6min
+[epoch 3] batch 750/1750 loss=0.0563 elapsed=7.6min ETA=10.1min
+[epoch 3] batch 800/1750 loss=0.0009 elapsed=8.1min ETA=9.6min
+[epoch 3] batch 850/1750 loss=0.0108 elapsed=8.6min ETA=9.1min
+[epoch 3] batch 900/1750 loss=0.1341 elapsed=9.1min ETA=8.6min
+[epoch 3] batch 950/1750 loss=0.0080 elapsed=9.6min ETA=8.1min
+[epoch 3] batch 1000/1750 loss=0.0023 elapsed=10.1min ETA=7.6min
+[epoch 3] batch 1050/1750 loss=0.2270 elapsed=10.6min ETA=7.1min
+[epoch 3] batch 1100/1750 loss=0.0284 elapsed=11.2min ETA=6.6min
+[epoch 3] batch 1150/1750 loss=0.0075 elapsed=11.7min ETA=6.1min
+[epoch 3] batch 1200/1750 loss=0.7696 elapsed=12.2min ETA=5.6min
+[epoch 3] batch 1250/1750 loss=0.2055 elapsed=12.8min ETA=5.1min
+[epoch 3] batch 1300/1750 loss=0.0279 elapsed=13.4min ETA=4.6min
+[epoch 3] batch 1350/1750 loss=0.0264 elapsed=13.9min ETA=4.1min
+[epoch 3] batch 1400/1750 loss=0.3498 elapsed=14.4min ETA=3.6min
+[epoch 3] batch 1450/1750 loss=0.6050 elapsed=14.9min ETA=3.1min
+[epoch 3] batch 1500/1750 loss=0.0601 elapsed=15.4min ETA=2.6min
+[epoch 3] batch 1550/1750 loss=0.4318 elapsed=15.9min ETA=2.0min
+[epoch 3] batch 1600/1750 loss=0.0392 elapsed=16.4min ETA=1.5min
+[epoch 3] batch 1650/1750 loss=0.2439 elapsed=16.8min ETA=1.0min
+[epoch 3] batch 1700/1750 loss=0.0117 elapsed=17.3min ETA=31s
+[epoch 3] batch 1750/1750 loss=0.0063 elapsed=17.8min ETA=0s
+[epoch 3] train_loss=0.0641 time=18.0min
+[epoch 3] ITW val : real->REAL 99.8% | spoof->FAKE 77.4% | bal.acc 88.6% | AUC 0.991 | EER 4.8% | n=500+500 (load failures 0)
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.90it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.85it/s]
+
+[select] best epoch by ITW-val balanced accuracy: 1 (91.1%)
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 3034.03it/s]
+
+=========== BEFORE vs AFTER (same held-out data, deployed inference) ===========
+ITW test speakers (unseen)
+   before: real->REAL 56.7% | spoof->FAKE 76.1% | bal.acc 66.4% | AUC 0.730 | EER 34.5% | n=1500+1500 (load failures 0)
+   after : real->REAL 79.9% | spoof->FAKE 91.8% | bal.acc 85.9% | AUC 0.941 | EER 13.1% | n=1500+1500 (load failures 0)
+ASVspoof dev sample (regression)
+   before: real->REAL 100.0% | spoof->FAKE 88.0% | bal.acc 94.0% | AUC 0.998 | EER 2.0% | n=300+300 (load failures 0)
+   after : real->REAL 99.7% | spoof->FAKE 92.7% | bal.acc 96.2% | AUC 0.998 | EER 2.3% | n=300+300 (load failures 0)
+3 Coding Languages For Big Tech.mp3
+   before: median fake prob 0.988 (min 0.665, max 0.998) windows%: [np.float64(96.9), np.float64(99.8), np.float64(89.5), np.float64(99.6), np.float64(98.8), np.float64(99.8), np.float64(99.8), np.float64(99.8), np.float64(66.5), np.float64(96.4), np.float64(98.8), np.float64(75.9), np.float64(99.7)]
+   after : median fake prob 0.011 (min 0.001, max 0.572) windows%: [np.float64(1.9), np.float64(0.5), np.float64(0.1), np.float64(57.2), np.float64(0.3), np.float64(4.1), np.float64(3.1), np.float64(1.2), np.float64(1.1), np.float64(0.3), np.float64(0.5), np.float64(0.3), np.float64(3.9)]
+how I learned Java to break into FAANG (copy me).mp3
+   before: median fake prob 0.981 (min 0.545, max 0.997) windows%: [np.float64(54.5), np.float64(94.2), np.float64(99.2), np.float64(99.6), np.float64(90.5), np.float64(88.0), np.float64(85.8), np.float64(99.7), np.float64(99.3), np.float64(99.2), np.float64(96.9), np.float64(99.3)]
+   after : median fake prob 0.650 (min 0.008, max 0.996) windows%: [np.float64(51.7), np.float64(89.4), np.float64(66.5), np.float64(99.3), np.float64(11.4), np.float64(51.6), np.float64(63.5), np.float64(93.7), np.float64(99.5), np.float64(44.4), np.float64(0.8), np.float64(99.6)]
+
+Saved: /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/results.json   Best checkpoint: /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_1
+To try it in the app: AUDIO_MODEL_CHECKPOINT=/Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_1 python run.py

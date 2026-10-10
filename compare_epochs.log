@@ -1,0 +1,158 @@
+[sets] ITW val 1000 | ITW test 3000 (7 speakers) | ASV dev 600
+[clips] 2 real, 0 fake | denoise comparison ON
+
+[baseline] /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_asvspoof_augmented_v2/epoch_2
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 7080.97it/s]
+     baseline/val: 500/1000 (28s)
+     baseline/val: 1000/1000 (54s)
+   val: scored 1000 clips in 54s
+     baseline/test: 500/3000 (29s)
+     baseline/test: 1000/3000 (59s)
+     baseline/test: 1500/3000 (90s)
+     baseline/test: 2000/3000 (120s)
+     baseline/test: 2500/3000 (149s)
+     baseline/test: 3000/3000 (177s)
+   test: scored 3000 clips in 177s
+     baseline/asv: 500/600 (22s)
+   asv: scored 600 clips in 27s
+
+[epoch_1] /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_1
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 8499.78it/s]
+     epoch_1/val: 500/1000 (28s)
+     epoch_1/val: 1000/1000 (54s)
+   val: scored 1000 clips in 54s
+     epoch_1/test: 500/3000 (29s)
+     epoch_1/test: 1000/3000 (58s)
+     epoch_1/test: 1500/3000 (87s)
+     epoch_1/test: 2000/3000 (116s)
+     epoch_1/test: 2500/3000 (144s)
+     epoch_1/test: 3000/3000 (172s)
+   test: scored 3000 clips in 172s
+     epoch_1/asv: 500/600 (22s)
+   asv: scored 600 clips in 27s
+
+[epoch_2] /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_2
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 8588.66it/s]
+     epoch_2/val: 500/1000 (27s)
+     epoch_2/val: 1000/1000 (54s)
+   val: scored 1000 clips in 54s
+     epoch_2/test: 500/3000 (29s)
+     epoch_2/test: 1000/3000 (57s)
+     epoch_2/test: 1500/3000 (86s)
+     epoch_2/test: 2000/3000 (115s)
+     epoch_2/test: 2500/3000 (143s)
+     epoch_2/test: 3000/3000 (171s)
+   test: scored 3000 clips in 171s
+     epoch_2/asv: 500/600 (22s)
+   asv: scored 600 clips in 27s
+
+[epoch_3] /Users/tharun/Desktop/Deepfake_Detection/checkpoints/wav2vec2_itw_ft_v1/epoch_3
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 8238.25it/s]
+     epoch_3/val: 500/1000 (27s)
+     epoch_3/val: 1000/1000 (54s)
+   val: scored 1000 clips in 54s
+     epoch_3/test: 500/3000 (29s)
+     epoch_3/test: 1000/3000 (57s)
+     epoch_3/test: 1500/3000 (87s)
+     epoch_3/test: 2000/3000 (115s)
+     epoch_3/test: 2500/3000 (144s)
+     epoch_3/test: 3000/3000 (172s)
+   test: scored 3000 clips in 172s
+     epoch_3/asv: 500/600 (22s)
+   asv: scored 600 clips in 27s
+
+====================================================================================================
+SANITY CHECK - baseline must reproduce the numbers from the earlier BEFORE scoring
+   baseline ITW-test real 56.7% / spoof 76.1%  (earlier: 56.7 / 76.1)
+   baseline ASV-dev  real 100.0% / spoof 88.0%  (earlier: 100.0 / 88.0)
+   -> REPRODUCED - the sets are identical to the training run
+
+====================================================================================================
+TABLE 1 - ITW VALIDATION speakers (the only data used to choose an epoch)
+model      real->REAL spoof->FAKE  bal.acc    AUC    EER | best thr bal.acc@thr
+baseline         81.4        82.8     82.1  0.905   17.6 |     0.66        83.3
+epoch_1          95.6        86.6     91.1  0.961    9.8 |     0.48        91.3
+epoch_2          98.2        83.4     90.8  0.977    7.8 |     0.10        93.2
+epoch_3          99.8        77.4     88.6  0.991    4.8 |     0.02        95.0
+
+TABLE 2 - ITW TEST speakers (never seen in training; reported, not used for selection)
+model      real->REAL spoof->FAKE  bal.acc    AUC    EER | bal.acc@val-thr
+baseline         56.7        76.1     66.4  0.730   34.5 |            66.4
+epoch_1          79.9        91.8     85.9  0.941   13.1 |            85.7
+epoch_2          92.1        90.9     91.5  0.974    8.4 |            89.1
+epoch_3          98.7        88.9     93.8  0.991    5.1 |            92.3
+   (bal.acc@val-thr = threshold picked on VAL only, then applied to TEST - shows whether a gap is just calibration)
+
+TABLE 3 - ASVspoof DEV sample (regression check: has it forgotten studio audio?)
+model      real->REAL spoof->FAKE  bal.acc    AUC   guard (bal.acc >= baseline - 3 pts)
+baseline        100.0        88.0     94.0  0.998   baseline
+epoch_1          99.7        92.7     96.2  0.998   ok
+epoch_2          99.7        92.7     96.2  0.998   ok
+epoch_3         100.0        95.0     97.5  0.999   ok
+
+====================================================================================================
+EPOCH SELECTION
+RULE (fixed before this comparison; same criterion as the training script, plus the ASV guard):
+   among epochs that pass the ASV guard, take the highest ITW-val balanced accuracy at 0.5 (tie: higher val AUC).
+   >>> SELECTED BY RULE: epoch_1
+Sensitivity (reported only - NOT used to select):
+   highest val AUC      : epoch_3
+   lowest  val EER      : epoch_3
+   highest val bal.acc at its own best threshold: epoch_3
+   highest TEST bal.acc @0.5 (look, do not pick): epoch_3
+
+====================================================================================================
+UNCERTAINTY - speaker-cluster bootstrap on TEST (7 speakers resampled, 2000 draws)
+   Clips from one speaker are correlated, so resampling speakers (not clips) gives the honest interval.
+model       bal.acc     95% interval | change vs baseline       95% interval  share of draws better
+baseline       66.4     [51.7, 87.9] |
+epoch_1        85.9     [78.6, 96.0] |          +19.5 pts      [+7.5, +26.9]                   100%
+epoch_2        91.5     [87.9, 97.4] |          +25.1 pts      [+8.4, +36.2]                   100%
+epoch_3        93.8     [91.9, 97.4] |          +27.4 pts      [+8.5, +40.3]                   100%
+
+PER-SPEAKER on TEST  (cells = real->REAL% / spoof->FAKE%, "-" = no clips of that class in the sample)
+speaker                   n real+fake  baseline   epoch_1   epoch_2   epoch_3
+Ayn Rand                   762+827      33/ 65    63/ 90    86/ 88    98/ 85
+Christopher Hitchens       426+398      92/ 87    99/ 92   100/ 94   100/ 93
+George Carlin               88+69       78/ 99    89/100    86/100    91/100
+Gilbert Gottfried           45+91       11/100    89/100   100/100   100/100
+Jimmy Carter                 7+9       100/100   100/100   100/100   100/100
+Lyndon Johnson              44+11       57/100   100/100   100/100   100/100
+Richard Nixon              128+95       76/ 79    99/ 86   100/ 88   100/ 83
+
+====================================================================================================
+YOUR CLIPS - plain (current pipeline)
+   cell = median window fake-prob (windows >= 50% fake / total windows); verdict at 0.5 on the median
+clip                                       truth         baseline          epoch_1          epoch_2          epoch_3
+3 Coding Languages For Big Tech.mp3        real       98.8% 13/13       1.1%  1/13       0.8%  0/13       0.1%  0/13
+how I learned Java to break into FAANG (co real       98.1% 12/12      65.0%  9/12      32.6%  5/12       2.6%  1/12
+   baseline   real clips called REAL: 0/2   fake clips called FAKE: 0/0
+   epoch_1    real clips called REAL: 1/2   fake clips called FAKE: 0/0
+   epoch_2    real clips called REAL: 2/2   fake clips called FAKE: 0/0
+   epoch_3    real clips called REAL: 2/2   fake clips called FAKE: 0/0
+
+   per-window fake probability (%):
+   3 Coding Languages For Big Tech.mp3
+      baseline   [96.9, 99.8, 89.5, 99.6, 98.8, 99.8, 99.8, 99.8, 66.5, 96.4, 98.8, 75.9, 99.7]
+      epoch_1    [1.9, 0.5, 0.1, 57.2, 0.3, 4.1, 3.1, 1.2, 1.1, 0.3, 0.5, 0.3, 3.9]
+      epoch_2    [1.4, 0.2, 0.1, 5.1, 0.1, 4.6, 1.0, 0.9, 0.8, 0.2, 0.2, 0.1, 1.0]
+      epoch_3    [0.3, 0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.2, 0.0, 0.0, 0.1, 0.1]
+   how I learned Java to break into FAANG (copy me).mp3
+      baseline   [54.5, 94.2, 99.2, 99.6, 90.5, 88.0, 85.8, 99.7, 99.3, 99.2, 96.9, 99.3]
+      epoch_1    [51.7, 89.4, 66.5, 99.3, 11.4, 51.6, 63.5, 93.7, 99.5, 44.4, 0.8, 99.6]
+      epoch_2    [39.9, 58.7, 2.8, 92.7, 5.9, 25.4, 11.6, 57.4, 89.3, 11.5, 1.2, 97.0]
+      epoch_3    [3.0, 50.5, 0.2, 14.1, 1.9, 2.5, 2.6, 1.0, 27.6, 0.2, 0.9, 20.8]
+
+====================================================================================================
+YOUR CLIPS - WITH noisereduce DENOISING applied before windowing (quick check on these clips only, NOT a validation)
+   cell = median window fake-prob (windows >= 50% fake / total windows); verdict at 0.5 on the median
+clip                                       truth         baseline          epoch_1          epoch_2          epoch_3
+3 Coding Languages For Big Tech.mp3        real       99.8% 13/13      99.9% 13/13      99.9% 13/13     100.0% 13/13
+how I learned Java to break into FAANG (co real       99.8% 12/12      99.9% 12/12     100.0% 12/12     100.0% 12/12
+   baseline   real clips called REAL: 0/2   fake clips called FAKE: 0/0
+   epoch_1    real clips called REAL: 0/2   fake clips called FAKE: 0/0
+   epoch_2    real clips called REAL: 0/2   fake clips called FAKE: 0/0
+   epoch_3    real clips called REAL: 0/2   fake clips called FAKE: 0/0
+
+====================================================================================================
+Paste everything above this line.
