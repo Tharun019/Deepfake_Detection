@@ -247,11 +247,12 @@ def _analyze_audio(file_path: str):
         # toward uniform regardless of whether the underlying content is
         # real or synthetic speech, so it isn't a meaningful fake/real
         # discriminator on compressed containers. Only treat high
-        # uniformity as suspicious on raw/lossless formats (wav/flac),
+        # uniformity as suspicious on raw PCM (wav). FLAC is lossless but
+        # also entropy-codes its samples (Rice coding), so it is excluded too,
         # matching how the image analyzer already scopes its JPEG-only
         # quantization-table check instead of applying it everywhere.
         uniformity = _byte_uniformity_score(sample)
-        is_compressed = ext in ('.mp3', '.m4a', '.aac', '.ogg')
+        is_compressed = ext in ('.mp3', '.m4a', '.aac', '.ogg', '.flac')
 
         if is_compressed:
             features['audio_uniformity'] = {
