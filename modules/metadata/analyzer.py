@@ -307,6 +307,11 @@ def _analyze_audio(file_path: str):
         return 0.4, {}
 
     if not flags:
+        features['no_flags_baseline'] = {
+            'label': 'No metadata red flags found — baseline score 25% (absence of red flags is weak evidence, not proof of authenticity)',
+            'contribution': +0.25,
+            'direction': 'neutral'
+        }
         return 0.25, features
 
     return round(min(sum(flags) / max(len(flags), 1), 0.95), 4), features
