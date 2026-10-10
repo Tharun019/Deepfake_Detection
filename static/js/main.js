@@ -88,7 +88,10 @@ function showIdle() {
   const xaiPholder = document.getElementById("xaiPlaceholder");
   const xaiBreakdown = document.getElementById("xaiBreakdown");
   if (gradcamImg) gradcamImg.classList.add("hidden");
-  if (xaiPholder) xaiPholder.classList.remove("hidden");
+  if (xaiPholder) {
+    xaiPholder.textContent = "Run analysis to see explainability output.";
+    xaiPholder.classList.remove("hidden");
+  }
   if (xaiBreakdown) xaiBreakdown.innerHTML = "";
 
   const computationText = document.getElementById("computationText");
@@ -360,6 +363,10 @@ function showResults(data) {
     xaiPholder.classList.add("hidden");
   } else {
     gradcamImg.classList.add("hidden");
+    xaiPholder.textContent =
+      currentTab === "audio" ? "No visual explanation for audio — see the per-layer breakdown below."
+      : currentTab === "video" ? "No visual explanation for video — see the per-layer breakdown below."
+      : "No Grad-CAM heatmap for this run (it needs both the XAI and L2 layers enabled) — see the per-layer breakdown below.";
     xaiPholder.classList.remove("hidden");
   }
 
