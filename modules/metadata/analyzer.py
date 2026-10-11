@@ -48,9 +48,17 @@ def analyze(file_path: str, media_type: str):
             return _analyze_video(file_path)
         elif media_type == 'audio':
             return _analyze_audio(file_path)
-        return 0.5, {}
+        return 0.5, {'unsupported_type': {
+            'label': 'Unsupported media type — metadata layer not applied, neutral score 50%',
+            'contribution': +0.50,
+            'direction': 'neutral'
+        }}
     except Exception:
-        return 0.5, {}
+        return 0.5, {'analyzer_error': {
+            'label': 'Metadata analysis error — neutral score 50%',
+            'contribution': +0.50,
+            'direction': 'neutral'
+        }}
 
 
 def _get_heic_exif_tags(file_path: str):
@@ -191,7 +199,11 @@ def _analyze_image(file_path: str):
         return round(min(max(score, 0.05), 0.95), 4), features
 
     except Exception:
-        return 0.5, {}
+        return 0.5, {'read_failure': {
+            'label': 'Image metadata could not be read — neutral score 50%',
+            'contribution': +0.50,
+            'direction': 'neutral'
+        }}
 
 
 def _analyze_video(file_path: str):
@@ -205,7 +217,11 @@ def _analyze_video(file_path: str):
             capture_output=True, text=True
         )
         if result.returncode != 0:
-            return 0.4, {}
+            return 0.4, {'probe_failed': {
+                'label': 'ffprobe could not read this file (non-zero exit) — default score 40%',
+                'contribution': +0.40,
+                'direction': 'neutral'
+            }}
 
         data = json.loads(result.stdout)
         fmt  = data.get('format', {})
@@ -242,9 +258,18 @@ def _analyze_video(file_path: str):
             features['av_streams'] = {'label': 'Both audio and video streams present', 'contribution': -0.05, 'direction': 'authentic'}
 
     except Exception:
-        return 0.4, {}
+        return 0.4, {'read_failure': {
+            'label': 'Metadata could not be read (ffprobe/parse failed) — default score 40%',
+            'contribution': +0.40,
+            'direction': 'neutral'
+        }}
 
     if not flags:
+        features['no_flags_baseline'] = {
+            'label': 'No metadata red flags found — baseline score 20% (absence of red flags is weak evidence, not proof of authenticity)',
+            'contribution': +0.20,
+            'direction': 'neutral'
+        }
         return 0.2, features
 
     return round(min(sum(flags) / max(len(flags), 1), 0.95), 4), features
@@ -261,7 +286,11 @@ def _analyze_audio(file_path: str):
             capture_output=True, text=True
         )
         if result.returncode != 0:
-            return 0.4, {}
+            return 0.4, {'probe_failed': {
+                'label': 'ffprobe could not read this file (non-zero exit) — default score 40%',
+                'contribution': +0.40,
+                'direction': 'neutral'
+            }}
 
         data = json.loads(result.stdout)
         fmt  = data.get('format', {})
@@ -304,7 +333,11 @@ def _analyze_audio(file_path: str):
                 features['sample_rate'] = {'label': f'Sample rate normal: {sample_rate}Hz', 'contribution': 0.0, 'direction': 'neutral'}
 
     except Exception:
-        return 0.4, {}
+        return 0.4, {'read_failure': {
+            'label': 'Metadata could not be read (ffprobe/parse failed) — default score 40%',
+            'contribution': +0.40,
+            'direction': 'neutral'
+        }}
 
     if not flags:
         features['no_flags_baseline'] = {

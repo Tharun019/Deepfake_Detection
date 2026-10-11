@@ -190,7 +190,7 @@ def analyze_video(file_path):
                 "raw_fake_prob": round(fake_prob, 4),
                 "raw_real_prob": round(real_prob, 4),
                 "frames_used": NUM_FRAMES,
-                "model": "VideoMAE-base (frozen, face-cropped) + trained linear-probe head",
+                "model": "VideoMAE-base (frozen, face-cropped) + trained MLP head (768-256-2)",
             }
         }
 

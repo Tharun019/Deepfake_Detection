@@ -279,6 +279,40 @@ def _analyze_audio(file_path: str):
     except Exception:
         return 0.5, {}
 
+def _video_payload_sample(f, size, is_mp4, n=65536):
+    """Return n bytes of compressed media payload, not container header.
+    Phones often write a large zero-padded 'free' box before 'mdat', so the
+    first bytes of an MP4 are padding, not video data. For MP4/MOV, walk the
+    top-level boxes and sample from the middle of 'mdat'; otherwise (or on
+    parse failure) sample from the middle of the file."""
+    import struct
+    if is_mp4:
+        try:
+            off = 0
+            while off + 8 <= size:
+                f.seek(off)
+                h = f.read(8)
+                if len(h) < 8:
+                    break
+                box_size, box_type = struct.unpack('>I4s', h)
+                hdr = 8
+                if box_size == 1:
+                    box_size = struct.unpack('>Q', f.read(8))[0]; hdr = 16
+                elif box_size == 0:
+                    box_size = size - off
+                if box_size < hdr:
+                    break
+                if box_type == b'mdat':
+                    payload = box_size - hdr
+                    f.seek(off + hdr + max(0, (payload - n) // 2))
+                    return f.read(min(n, payload)), 'mdat'
+                off += box_size
+        except Exception:
+            pass
+    f.seek(max(0, (size - n) // 2))
+    return f.read(min(n, size)), 'mid-file'
+
+
 def _analyze_video(file_path: str):
     flags = 0
     features = {}
@@ -288,8 +322,8 @@ def _analyze_video(file_path: str):
             header = f.read(64)
             f.seek(0, 2)
             size = f.tell()
-            f.seek(0)
-            sample = f.read(min(65536, size))
+            _ext = os.path.splitext(file_path)[1].lower()
+            sample, sample_src = _video_payload_sample(f, size, _ext in ('.mp4', '.mov', '.m4v'))
 
         ext = os.path.splitext(file_path)[1].lower()
 
@@ -357,13 +391,13 @@ def _analyze_video(file_path: str):
         if entropy < 6.0:
             flags += 1
             features['video_entropy'] = {
-                'label': f'Low entropy {entropy:.3f} — expected >6.0 for compressed video',
+                'label': f'Low entropy {entropy:.3f} (sampled from {sample_src}) — expected >6.0 for compressed video',
                 'contribution': +0.25,
                 'direction': 'suspicious'
             }
         else:
             features['video_entropy'] = {
-                'label': f'Entropy {entropy:.3f} — normal for compressed video',
+                'label': f'Entropy {entropy:.3f} (sampled from {sample_src}) — normal for compressed video',
                 'contribution': 0.0,
                 'direction': 'authentic'
             }
