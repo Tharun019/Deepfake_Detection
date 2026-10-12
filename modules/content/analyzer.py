@@ -38,15 +38,17 @@ def _get_face_cascade():
     return _face_cascade
 
 
-def _crop_to_face(img: Image.Image) -> Image.Image:
-    """Detect largest face and crop with margin. Falls back to full frame if none found."""
+def _crop_to_face_info(img: Image.Image):
+    """Detect largest face and crop with 20% margin. Returns (image, status),
+    status = face / no_face_full_frame / detection_error_full_frame.
+    Crop logic unchanged; only the status is new."""
     try:
         cascade = _get_face_cascade()
         img_np = np.array(img.convert('L'))  # grayscale for detection
         faces = cascade.detectMultiScale(img_np, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
 
         if len(faces) == 0:
-            return img  # fallback — no face found, use full frame
+            return img, 'no_face_full_frame'  # fallback — no face found, use full frame
 
         # pick largest face by area
         x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
@@ -61,9 +63,14 @@ def _crop_to_face(img: Image.Image) -> Image.Image:
         x1 = min(img_w, x + w + margin_x)
         y1 = min(img_h, y + h + margin_y)
 
-        return img.crop((x0, y0, x1, y1))
+        return img.crop((x0, y0, x1, y1)), 'face'
     except Exception:
-        return img  # fallback on any detection error
+        return img, 'detection_error_full_frame'  # fallback on any detection error
+
+
+def _crop_to_face(img: Image.Image) -> Image.Image:
+    """Backward-compatible wrapper (generate_gradcam uses it)."""
+    return _crop_to_face_info(img)[0]
 
 
 _transform = transforms.Compose([
@@ -75,10 +82,9 @@ _transform = transforms.Compose([
 
 def analyze(file_path: str, media_type: str):
     """Returns (score, features). `features` is a diagnostic dict for the
-    XAI panel — {} for image/video (no per-run diagnostics defined yet),
-    populated for audio with the raw Wav2Vec2 output so failures/edge
-    cases (short clips, model load errors) are visible instead of just
-    collapsing into a neutral 0.5 score with no explanation."""
+    XAI panel: raw model output (+ face-crop status for image/video, window
+    stats for audio), and an 'error' key whenever analysis failed and the
+    score fell back to neutral 0.5, so failures are visible."""
     if media_type == 'image':
         return _analyze_image(file_path)
     elif media_type == 'video':
@@ -92,7 +98,7 @@ def _analyze_image(file_path: str):
     try:
         model = _get_image_model()
         img = Image.open(file_path).convert('RGB')
-        img = _crop_to_face(img)
+        img, face_status = _crop_to_face_info(img)
         tensor = _transform(img).unsqueeze(0)
         with torch.no_grad():
             outputs = model(tensor)
@@ -100,18 +106,25 @@ def _analyze_image(file_path: str):
         probs = torch.softmax(outputs, dim=1).squeeze()
         # class 0 fake, class 1 = real (ImageFolder sorts alphabetically)
         fake_prob = float(probs[0])
-        return round(min(max(fake_prob, 0.05), 0.95), 4), {}
-    except Exception:
-        return 0.5, {}
+        return round(min(max(fake_prob, 0.05), 0.95), 4), {
+            'raw_fake_prob': round(fake_prob, 4),
+            'raw_real_prob': round(float(probs[1]), 4),
+            'face_crop': face_status,
+        }
+    except Exception as e:
+        return 0.5, {'error': f'image content analysis failed: {type(e).__name__}: {e}'}
 
 
 def _analyze_video(file_path: str):
     try:
         from modules.content.video_analyzer import analyze_video
         result = analyze_video(file_path)
-        return result.get("score", 0.5), result.get("features", {})
-    except Exception:
-        return 0.5, {}
+        features = dict(result.get("features", {}))
+        if "error" in result:
+            features["error"] = result["error"]
+        return result.get("score", 0.5), features
+    except Exception as e:
+        return 0.5, {'error': f'video content analysis failed: {type(e).__name__}: {e}'}
 
 
 def _analyze_audio(file_path: str):

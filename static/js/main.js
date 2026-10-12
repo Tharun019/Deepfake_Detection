@@ -263,7 +263,7 @@ function renderFeatureBreakdown(xai) {
     container.appendChild(block);
   });
 
-  // L2 — raw model diagnostics (currently only populated for audio).
+  // L2 — raw model diagnostics (image, video and audio).
   // Different shape than L1/L3 (no contribution/direction — these are
   // informational, not individually scored), so rendered as plain rows.
   // This exists specifically to answer "why did L2 say what it said" —
@@ -322,6 +322,19 @@ function renderFeatureBreakdown(xai) {
         rows.push(
           `Clip shorter than the window — zero-padded to fill ${cf.analyzed_window_sec}s (short clips can skew the score)`
         );
+      }
+      if (cf.face_crop !== undefined) {
+        const faceText = {
+          face: "Face detected — model scored the cropped face",
+          no_face_full_frame: "No face detected — model scored the full image",
+          detection_error_full_frame: "Face detector error — model scored the full image",
+        };
+        rows.push(faceText[cf.face_crop] || `Face crop: ${cf.face_crop}`);
+      }
+      if (cf.face_frames !== undefined && cf.frames_decoded !== undefined) {
+        rows.push(`Face found in ${cf.face_frames} of ${cf.frames_decoded} sampled frames (frames without a face are scored full-frame)`);
+        if (cf.frames_padded > 0)
+          rows.push(`Short video — ${cf.frames_padded} of ${cf.frames_used} model frames repeat the last decoded frame`);
       }
       rows.forEach((text) => {
         const row = document.createElement("div");

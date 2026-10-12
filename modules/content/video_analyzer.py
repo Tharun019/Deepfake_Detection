@@ -93,8 +93,8 @@ def _load_face_cascade():
     )
 
 
-def _crop_to_face(frame_rgb):
-    """Detect the largest face in an RGB frame and crop to it with a 20%
+def _crop_to_face_info(frame_rgb):
+    """Returns (crop, face_found). Detect the largest face in an RGB frame and crop to it with a 20%
     margin. Falls back to the full frame if no face is detected — same
     behavior as crop_to_face_np() in training, so train/inference stay
     consistent."""
@@ -107,7 +107,7 @@ def _crop_to_face(frame_rgb):
         minSize=FACE_MIN_SIZE,
     )
     if len(faces) == 0:
-        return frame_rgb
+        return frame_rgb, False
 
     x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
     margin_x = int(w * FACE_MARGIN)
@@ -116,10 +116,15 @@ def _crop_to_face(frame_rgb):
     y0 = max(y - margin_y, 0)
     x1 = min(x + w + margin_x, frame_rgb.shape[1])
     y1 = min(y + h + margin_y, frame_rgb.shape[0])
-    return frame_rgb[y0:y1, x0:x1]
+    return frame_rgb[y0:y1, x0:x1], True
 
 
-def _extract_frames(video_path, num_frames=NUM_FRAMES):
+def _crop_to_face(frame_rgb):
+    """Backward-compatible wrapper: crop only."""
+    return _crop_to_face_info(frame_rgb)[0]
+
+
+def _extract_frames(video_path, num_frames=NUM_FRAMES, stats=None):
     """Uniform frame sampling via OpenCV, with face-cropping applied per
     frame — must match extract_frames() in the training notebook (cell-3)
     exactly (same sampling scheme + same crop logic) to avoid a
@@ -132,6 +137,7 @@ def _extract_frames(video_path, num_frames=NUM_FRAMES):
         return None
     indices = set(np.linspace(0, max(total - 1, 0), num_frames, dtype=int).tolist())
     frames = []
+    face_hits = 0
     idx = 0
     while True:
         ok = cap.grab()
@@ -141,11 +147,17 @@ def _extract_frames(video_path, num_frames=NUM_FRAMES):
             ok, frame = cap.retrieve()
             if ok:
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frames.append(_crop_to_face(frame_rgb))
+                crop, found = _crop_to_face_info(frame_rgb)
+                frames.append(crop)
+                face_hits += 1 if found else 0
         idx += 1
         if len(frames) >= num_frames:
             break
     cap.release()
+    if stats is not None:
+        stats["frames_decoded"] = len(frames)
+        stats["face_frames"] = face_hits
+        stats["frames_padded"] = max(num_frames - len(frames), 0)
     if len(frames) < num_frames:
         if not frames:
             return None
@@ -159,9 +171,10 @@ def analyze_video(file_path):
         _load_backbone()
         _load_head()
 
-        frames = _extract_frames(file_path)
+        stats = {}
+        frames = _extract_frames(file_path, stats=stats)
         if frames is None:
-            return {"score": 0.5, "error": "could not extract frames from video"}
+            return {"score": 0.5, "error": "could not extract frames from video", "features": dict(stats)}
 
         inputs = _processor(images=frames, return_tensors="pt")
         pixel_values = inputs["pixel_values"]
@@ -192,6 +205,9 @@ def analyze_video(file_path):
                 "raw_fake_prob": round(fake_prob, 4),
                 "raw_real_prob": round(real_prob, 4),
                 "frames_used": NUM_FRAMES,
+                "frames_decoded": stats.get("frames_decoded"),
+                "frames_padded": stats.get("frames_padded"),
+                "face_frames": stats.get("face_frames"),
                 "model": "VideoMAE-base fine-tuned (top 4 blocks, face-cropped) + MLP head (768-256-2)",
             }
         }

@@ -8,6 +8,11 @@ from modules.scoring.fusion import fuse_scores
 
 main = Blueprint('main', __name__)
 ALLOWED_TABS = {'image', 'video', 'audio'}
+TAB_EXTENSIONS = {
+    'image': {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'},
+    'video': {'.mp4', '.avi', '.mov', '.m4v'},
+    'audio': {'.wav', '.mp3', '.flac', '.m4a', '.aac', '.ogg'},
+}
 
 @main.route('/')
 def index():
@@ -25,6 +30,15 @@ def analyze():
     media_type = request.form.get('currentTab', 'image')
     if media_type not in ALLOWED_TABS:
         return jsonify({'error': 'Invalid media type'}), 400
+
+    # Wrong-tab check: reject a file whose extension belongs to a DIFFERENT
+    # tab. Unknown extensions pass through. Extension-based only, so a
+    # renamed file is not caught (content sniffing = future work).
+    ext = os.path.splitext(uploaded.filename)[1].lower()
+    for tab, exts in TAB_EXTENSIONS.items():
+        if tab != media_type and ext in exts:
+            return jsonify({'error': f'"{uploaded.filename}" is a {tab} file ({ext}). '
+                                     f'Switch to the {tab.capitalize()} tab and upload it there.'}), 400
 
     run_metadata = request.form.get('layer_metadata', '1') == '1'
     run_content  = request.form.get('layer_content',  '1') == '1'
@@ -72,18 +86,6 @@ def analyze():
             'content_features':  content_features,
             'binary_features':   binary_features
         }
-
-        # Honesty flag — L2 video score is an unfine-tuned VideoMAE embedding
-        # heuristic with hand-picked, uncalibrated constants. Not a validated
-        # classifier output. Surface this so it can't be mistaken for one.
-        if media_type == 'video' and run_content:
-            result['xai']['content_features'] = {
-                'video_heuristic_warning': {
-                    'label': 'L2 video score is derived from unfine-tuned VideoMAE embedding statistics with uncalibrated constants — not a validated classifier output.',
-                    'contribution': None,
-                    'direction': 'unvalidated'
-                }
-            }
 
         # Grad-CAM — image only, XAI + content toggles must be on
         if media_type == 'image' and run_xai and run_content:
