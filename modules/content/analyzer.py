@@ -21,9 +21,10 @@ def _get_image_model():
         return _image_model
     model = timm.create_model('efficientnet_b4', pretrained=False, num_classes=2)
     weights_path = os.path.join(os.path.dirname(__file__), '../../models/image/efficientnet_b4.pth')
-    if os.path.exists(weights_path):
-        state = torch.load(weights_path, map_location='cpu')
-        model.load_state_dict(state, strict=False)
+    if not os.path.exists(weights_path):
+        raise FileNotFoundError(f'Image model weights not found at {weights_path}')
+    state = torch.load(weights_path, map_location='cpu')
+    model.load_state_dict(state, strict=True)  # fail loudly on any key mismatch
     model.eval()
     _image_model = model
     return model
