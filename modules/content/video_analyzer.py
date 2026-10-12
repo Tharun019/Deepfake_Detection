@@ -8,10 +8,10 @@ from transformers import VideoMAEModel, VideoMAEImageProcessor
 # ── Config — must match training exactly (kaggle_video_train.py, face-crop
 #    version) ──────────────────────────────────────────────────────────────
 NUM_FRAMES = 16
-LOCAL_BACKBONE_DIR = os.path.join(os.path.dirname(__file__), '../../models/video/videomae-base')
+LOCAL_BACKBONE_DIR = os.path.join(os.path.dirname(__file__), '../../models/video/vmae_ft_v1/best/videomae-base-ft')
 HUB_BACKBONE_ID = "MCG-NJU/videomae-base"
-HEAD_CHECKPOINT = os.path.join(os.path.dirname(__file__), '../../models/video/video_head_facecrop.pth')
-NORM_STATS_CHECKPOINT = os.path.join(os.path.dirname(__file__), '../../models/video/feature_norm_stats_facecrop.npz')
+HEAD_CHECKPOINT = os.path.join(os.path.dirname(__file__), '../../models/video/vmae_ft_v1/best/video_head_ft.pth')
+NORM_STATS_CHECKPOINT = os.path.join(os.path.dirname(__file__), '../../models/video/vmae_ft_v1/best/feature_norm_stats_facecrop.npz')
 
 # Face-crop params — must match crop_to_face_np() in the training notebook
 # (cell-3) exactly, which itself mirrors the image pipeline's face-crop logic.
@@ -48,7 +48,9 @@ def _load_backbone():
     global _backbone, _processor
     if _backbone is not None:
         return
-    source = LOCAL_BACKBONE_DIR if os.path.isdir(LOCAL_BACKBONE_DIR) else HUB_BACKBONE_ID
+    if not os.path.isdir(LOCAL_BACKBONE_DIR):
+        raise FileNotFoundError(f'fine-tuned VideoMAE not found at {LOCAL_BACKBONE_DIR} — copy models/video/vmae_ft_v1/ (from the Kaggle output) into place')
+    source = LOCAL_BACKBONE_DIR
     _processor = VideoMAEImageProcessor.from_pretrained(source)
     _backbone = VideoMAEModel.from_pretrained(source)
     _backbone.eval()
@@ -190,7 +192,7 @@ def analyze_video(file_path):
                 "raw_fake_prob": round(fake_prob, 4),
                 "raw_real_prob": round(real_prob, 4),
                 "frames_used": NUM_FRAMES,
-                "model": "VideoMAE-base (frozen, face-cropped) + trained MLP head (768-256-2)",
+                "model": "VideoMAE-base fine-tuned (top 4 blocks, face-cropped) + MLP head (768-256-2)",
             }
         }
 
