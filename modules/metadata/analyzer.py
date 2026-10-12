@@ -131,6 +131,11 @@ def _analyze_image(file_path: str):
             return 0.92, features
 
         score = 0.5
+        features['baseline'] = {
+            'label': 'Baseline when EXIF is present: 50% (camera fields below lower it, missing core fields raise it)',
+            'contribution': +0.50,
+            'direction': 'neutral'
+        }
         has_make      = 'Image Make' in tags
         has_model     = 'Image Model' in tags
         has_datetime  = 'EXIF DateTimeOriginal' in tags or 'Image DateTime' in tags
@@ -196,7 +201,14 @@ def _analyze_image(file_path: str):
                 'direction': 'suspicious'
             }
 
-        return round(min(max(score, 0.05), 0.95), 4), features
+        final = round(min(max(score, 0.05), 0.95), 4)
+        if abs(final - round(score, 4)) > 1e-9:
+            features['clamp'] = {
+                'label': f'Score clamped to the {final:.0%} limit (raw {score:.0%})',
+                'contribution': round(final - score, 4),
+                'direction': 'neutral'
+            }
+        return final, features
 
     except Exception:
         return 0.5, {'read_failure': {
@@ -204,6 +216,22 @@ def _analyze_image(file_path: str):
             'contribution': +0.50,
             'direction': 'neutral'
         }}
+
+
+def _explain_mean(features, flags):
+    """Display-only: video/audio L1 score = mean(flags). Rewrite each red-flag
+    row to its real share (weight / N) and zero the unscored authentic rows,
+    so displayed rows sum to the score. Score computation is untouched."""
+    n = max(len(flags), 1)
+    for f in features.values():
+        if f.get('direction') == 'suspicious':
+            w = f['contribution']
+            f['contribution'] = round(w / n, 4)
+            f['label'] += f" (weight {w:.0%}, averaged over {n} signal{'s' if n > 1 else ''})"
+        elif f.get('direction') == 'authentic':
+            f['contribution'] = 0.0
+            f['label'] += ' (informational, not scored)'
+    return features
 
 
 def _analyze_video(file_path: str):
@@ -270,9 +298,9 @@ def _analyze_video(file_path: str):
             'contribution': +0.20,
             'direction': 'neutral'
         }
-        return 0.2, features
+        return 0.2, _explain_mean(features, flags)
 
-    return round(min(sum(flags) / max(len(flags), 1), 0.95), 4), features
+    return round(min(sum(flags) / max(len(flags), 1), 0.95), 4), _explain_mean(features, flags)
 
 
 def _analyze_audio(file_path: str):
@@ -345,6 +373,6 @@ def _analyze_audio(file_path: str):
             'contribution': +0.25,
             'direction': 'neutral'
         }
-        return 0.25, features
+        return 0.25, _explain_mean(features, flags)
 
-    return round(min(sum(flags) / max(len(flags), 1), 0.95), 4), features
+    return round(min(sum(flags) / max(len(flags), 1), 0.95), 4), _explain_mean(features, flags)
