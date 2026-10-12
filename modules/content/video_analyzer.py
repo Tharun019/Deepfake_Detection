@@ -64,9 +64,8 @@ def _load_head():
         return
     if not os.path.exists(HEAD_CHECKPOINT):
         raise FileNotFoundError(
-            f"video_head_facecrop.pth not found at {HEAD_CHECKPOINT} — copy it "
-            "(and feature_norm_stats_facecrop.npz) from the Kaggle notebook's "
-            "Output tab into models/video/ before using this analyzer."
+            f"video_head_ft.pth not found at {HEAD_CHECKPOINT} — restore "
+            "models/video/vmae_ft_v1/ from the model backup zip (see README)."
         )
     if not os.path.exists(NORM_STATS_CHECKPOINT):
         raise FileNotFoundError(
