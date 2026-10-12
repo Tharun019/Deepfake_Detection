@@ -1,0 +1,5 @@
+# Training / evaluation scripts (root *.py) — installs the app requirements plus these
+-r requirements.txt
+scikit-learn==1.8.0
+kagglehub==1.0.2
+noisereduce==3.0.3
