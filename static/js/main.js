@@ -253,7 +253,7 @@ function renderFeatureBreakdown(xai) {
       contrib.className = "xai-row-contrib";
       const val = feat.contribution;
       const sign = val > 0 ? "+" : "";
-      contrib.textContent = `${sign}${(val * 100).toFixed(0)}%`;
+      contrib.textContent = `${sign}${(val * 100).toFixed(1)}%`;
 
       row.appendChild(label);
       row.appendChild(contrib);

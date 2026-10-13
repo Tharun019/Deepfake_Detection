@@ -12,7 +12,7 @@ def analyze(file_path: str, media_type: str):
         return _analyze_video(file_path)
     elif media_type == 'audio':
         return _analyze_audio(file_path)
-    return 0.5, {}
+    return 0.5, {'unsupported_type': {'label': 'Unsupported media type — binary layer not applied, neutral score 50%', 'contribution': 0.5, 'direction': 'neutral'}}
 
 
 def _shannon_entropy(data: bytes) -> float:
@@ -75,6 +75,17 @@ def _is_heic(file_path: str, raw: bytes) -> bool:
         if ftyp == b'ftyp' and brand in (b'heic', b'heix', b'hevc', b'mif1'):
             return True
     return False
+
+
+def _l3_flags_result(flags, features):
+    """Audio/video L3 score = flags x 0.25, capped at 0.95. Adds a visible
+    cap row when the cap applies so displayed rows sum to the score."""
+    raw = flags * 0.25
+    final = round(min(raw, 0.95), 4)
+    if raw > 0.95:
+        features['cap'] = {'label': f'Score capped at 95% (raw {raw:.0%})',
+                           'contribution': round(final - raw, 4), 'direction': 'neutral'}
+    return final, features
 
 
 def _analyze_image(file_path: str):
@@ -163,10 +174,18 @@ def _analyze_image(file_path: str):
             pass
 
         final_score = round(sum(scores) / len(scores), 4) if scores else 0.5
+        # Display-only: image L3 = mean of the check scores. Show each row's
+        # real share (score / N) so the rows sum to the layer score.
+        n = len(scores)
+        if n:
+            for f in features.values():
+                w = f['contribution']
+                f['contribution'] = round(w / n, 4)
+                f['label'] += f" (check score {w:.0%}, averaged over {n} checks)"
         return final_score, features
 
-    except Exception:
-        return 0.5, {}
+    except Exception as e:
+        return 0.5, {'analyzer_error': {'label': f'Binary analysis failed ({type(e).__name__}: {e}) — neutral score 50%', 'contribution': 0.5, 'direction': 'neutral'}}
 
 def _analyze_audio(file_path: str):
     flags = 0
@@ -274,10 +293,10 @@ def _analyze_audio(file_path: str):
                 'direction': 'authentic'
             }
 
-        return round(min(flags * 0.25, 0.95), 4), features
+        return _l3_flags_result(flags, features)
 
-    except Exception:
-        return 0.5, {}
+    except Exception as e:
+        return 0.5, {'analyzer_error': {'label': f'Binary analysis failed ({type(e).__name__}: {e}) — neutral score 50%', 'contribution': 0.5, 'direction': 'neutral'}}
 
 def _video_payload_sample(f, size, is_mp4, n=65536):
     """Return n bytes of compressed media payload, not container header.
@@ -413,7 +432,7 @@ def _analyze_video(file_path: str):
             'direction': 'neutral'
         }
 
-        return round(min(flags * 0.25, 0.95), 4), features
+        return _l3_flags_result(flags, features)
 
-    except Exception:
-        return 0.5, {}
+    except Exception as e:
+        return 0.5, {'analyzer_error': {'label': f'Binary analysis failed ({type(e).__name__}: {e}) — neutral score 50%', 'contribution': 0.5, 'direction': 'neutral'}}
