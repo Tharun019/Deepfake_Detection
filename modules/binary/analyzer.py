@@ -98,7 +98,7 @@ def _analyze_image(file_path: str):
 
         if _is_heic(file_path, raw):
             features['heic_format'] = {
-                'label': 'HEIC format — native camera container (iOS/Android), camera-authentic',
+                'label': 'HEIC container — used by phone cameras, but also by macOS screenshots; fixed score 15%',
                 'contribution': 0.15,
                 'direction': 'authentic'
             }

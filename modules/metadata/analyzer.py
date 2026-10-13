@@ -167,7 +167,7 @@ def _analyze_image(file_path: str):
             score -= 0.12
             features['makernote'] = {'label': 'MakerNote present (strong camera signal)', 'contribution': -0.12, 'direction': 'authentic'}
         else:
-            features['makernote'] = {'label': 'MakerNote absent (strong suspicion signal)', 'contribution': 0.0, 'direction': 'neutral'}
+            features['makernote'] = {'label': 'MakerNote absent (informational, not scored)', 'contribution': 0.0, 'direction': 'neutral'}
 
         if has_exposure:
             score -= 0.06
