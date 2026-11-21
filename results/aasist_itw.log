@@ -1,0 +1,22 @@
+device: mps | params: 297866
+  test: 500/3000 (25s)
+  test: 1000/3000 (51s)
+  test: 1500/3000 (79s)
+  test: 2000/3000 (109s)
+  test: 2500/3000 (137s)
+  test: 3000/3000 (165s)
+  asv: 500/600 (192s)
+
+=== ITW TEST, 7 unseen speakers (same clips for all models) | load failures 0 ===
+model                                          n real->REAL fake->FAKE  bal.acc    AUC    EER
+AASIST (zero-shot, ASVspoof19 LA)     1500+1500       27.7%      64.4%    46.1%  0.448  56.2%
+Ours stage 1 (ASVspoof19 only)        1500+1500       56.7%      76.1%    66.4%  0.730  34.5%
+Ours stage 2 (deployed, epoch 3)      1500+1500       98.7%      88.9%    93.8%  0.991   5.1%
+
+=== ASVspoof 2019 LA dev sample (sanity: AASIST should be near-perfect here) | load failures 0 ===
+model                                          n real->REAL fake->FAKE  bal.acc    AUC    EER
+AASIST (zero-shot, ASVspoof19 LA)      300+300        99.3%      99.7%    99.5%  1.000   0.3%
+Ours stage 1 (ASVspoof19 only)         300+300       100.0%      88.0%    94.0%  0.998   2.0%
+Ours stage 2 (deployed, epoch 3)       300+300       100.0%      95.0%    97.5%  0.999   2.5%
+
+saved to /Users/tharun/Desktop/Deepfake_Detection/results/baseline_aasist | total 197s

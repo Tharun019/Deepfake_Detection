@@ -1,0 +1,62 @@
+{
+ "test": {
+  "AASIST (zero-shot, ASVspoof19 LA)": {
+   "n_real": 1500,
+   "n_fake": 1500,
+   "real_recall": 0.2773333333333333,
+   "fake_recall": 0.644,
+   "bal_acc": 0.46066666666666667,
+   "auc": 0.4475804444444444,
+   "eer": 0.562
+  },
+  "Ours stage 1 (ASVspoof19 only)": {
+   "n_real": 1500,
+   "n_fake": 1500,
+   "real_recall": 0.5673333333333334,
+   "fake_recall": 0.7606666666666667,
+   "bal_acc": 0.664,
+   "auc": 0.7303031111111112,
+   "eer": 0.34500000000000003
+  },
+  "Ours stage 2 (deployed, epoch 3)": {
+   "n_real": 1500,
+   "n_fake": 1500,
+   "real_recall": 0.9866666666666667,
+   "fake_recall": 0.8886666666666667,
+   "bal_acc": 0.9376666666666666,
+   "auc": 0.9905693333333333,
+   "eer": 0.051333333333333356
+  },
+  "_load_failures": 0
+ },
+ "asv": {
+  "AASIST (zero-shot, ASVspoof19 LA)": {
+   "n_real": 300,
+   "n_fake": 300,
+   "real_recall": 0.9933333333333333,
+   "fake_recall": 0.9966666666666667,
+   "bal_acc": 0.995,
+   "auc": 0.9997777777777778,
+   "eer": 0.0033333333333333166
+  },
+  "Ours stage 1 (ASVspoof19 only)": {
+   "n_real": 300,
+   "n_fake": 300,
+   "real_recall": 1.0,
+   "fake_recall": 0.88,
+   "bal_acc": 0.94,
+   "auc": 0.9976222222222222,
+   "eer": 0.02000000000000001
+  },
+  "Ours stage 2 (deployed, epoch 3)": {
+   "n_real": 300,
+   "n_fake": 300,
+   "real_recall": 1.0,
+   "fake_recall": 0.95,
+   "bal_acc": 0.975,
+   "auc": 0.998588888888889,
+   "eer": 0.024999999999999994
+  },
+  "_load_failures": 0
+ }
+}
