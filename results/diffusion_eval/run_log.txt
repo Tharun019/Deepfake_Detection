@@ -1,0 +1,38 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+=== check: system image scoring code ===
+def _analyze_image(file_path: str):
+    try:
+        model = _get_image_model()
+        img = Image.open(file_path).convert('RGB')
+        img, face_status = _crop_to_face_info(img)
+        tensor = _transform(img).unsqueeze(0)
+        with torch.no_grad():
+            outputs = model(tensor)
+        # outputs shape: [1, 2] — [fake_prob, real_prob]
+        probs = torch.softmax(outputs, dim=1).squeeze()
+        # class 0 fake, class 1 = real (ImageFolder sorts alphabetically)
+        fake_prob = float(probs[0])
+        return round(min(max(fake_prob, 0.05), 0.95), 4), {
+            'raw_fake_prob': round(fake_prob, 4),
+            'raw_real_prob': round(float(probs[1]), 4),
+            'face_crop': face_status,
+        }
+    except Exception as e:
+        return 0.5, {'error': f'image content analysis failed: {type(e).__name__}: {e}'}
+
+repo files: ['.gitattributes', 'README.md', 'docs/images/compare.jpg', 'docs/images/deepfake_examples.jpg', 'docs/images/table1.jpg', 'docs/images/table2.jpg', 'inpainting.zip', 'insight.zip', 'text2img.zip', 'wiki.zip']
+real_wiki: 30000 images in zip, scored 500, skipped 0
+sd15_text2img: 30000 images in zip, scored 500, skipped 0
+sd_inpainting: 30000 images in zip, scored 500, skipped 0
+=== sanity vs _analyze_image (first 3 real) ===
+0.0022 -> (0.05, {'raw_fake_prob': 0.0022, 'raw_real_prob': 0.9978, 'face_crop': 'face'})
+0.0488 -> (0.05, {'raw_fake_prob': 0.0488, 'raw_real_prob': 0.9512, 'face_crop': 'no_face_full_frame'})
+0.5574 -> (0.5574, {'raw_fake_prob': 0.5574, 'raw_real_prob': 0.4426, 'face_crop': 'face'})
+
+=== RESULTS (model-level call, fake if prob >= 0.50) ===
+real_wiki      : real called real 90.8%  (FPR 9.2%)  n=500
+sd15_text2img  : fakes detected 6.6%  balanced acc vs real 48.7%  AUC 0.468  n=500
+sd_inpainting  : fakes detected 7.0%  balanced acc vs real 48.9%  AUC 0.490  n=500
+face-status sample values: ['face', 'no_face_full_frame']
+
+Saved: results/diffusion_eval/scores.csv and results/diffusion_eval/manifest.csv

@@ -1,0 +1,147 @@
+rvf10k valid found: real 1500, fake 1500
+image items: 215
+sanity first image: (0.75, {'no_exif_jpeg': {'label': 'No EXIF — JPEG file (strongly suspicious)', 'contribution': 0.75, 'direction': 'suspicious'}}) | (0.05, {'raw_fake_prob': 0.0226, 'raw_real_prob': 0.9774, 'face_crop': 'face'}) | (0.225, {'shannon_entropy': {'label': 'Shannon entropy 7.955 — within normal camera range (check score 30%, averaged over 4 checks)', 'contribution': 0.075, 'direction': 'authentic'}, 'byte_uniformity': {'label': 'Byte uniformity score: 0.996 (check score 30%, averaged over 4 checks)', 'contribution': 0.075, 'direction': 'suspicious'}, 'jpeg_quantization': {'label': 'JPEG quantization table score: 0.000 (check score 0%, averaged over 4 checks)', 'contribution': 0.0, 'direction': 'authentic'}, 'bytes_per_pixel': {'label': 'Bytes-per-pixel ratio 0.455 — normal (check score 30%, averaged over 4 checks)', 'contribution': 0.075, 'direction': 'authentic'}})
+images 0/215
+images 25/215
+images 50/215
+images 75/215
+images 100/215
+images 125/215
+images 150/215
+images 175/215
+images 200/215
+PNG file does not have exif data.
+video test csv columns: ['path', 'method', 'label', 'raw_fake_prob', 'score', 'error']
+video test clips resolved: 900 of 900
+video items: 100
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s]Loading weights: 100%|██████████| 196/196 [00:00<00:00, 8799.02it/s]
+sanity first video: (0.3333, {'generic_encoder_tag': {'label': "Non-camera encoder signature detected ('lavf' in encoder tag) — file was produced/re-muxed by software, not written directly by a camera (weight 50%, averaged over 3 signals)", 'contribution': 0.1667, 'direction': 'suspicious'}, 'no_creation_time': {'label': 'No creation timestamp in container (weight 20%, averaged over 3 signals)', 'contribution': 0.0667, 'direction': 'suspicious'}, 'video_no_audio': {'label': 'Video stream with no audio track (weight 30%, averaged over 3 signals)', 'contribution': 0.1, 'direction': 'suspicious'}}) | (0.0, {'mp4_header': {'label': "Valid MP4/MOV header (brand 'isom')", 'contribution': 0.0, 'direction': 'authentic'}, 'video_entropy': {'label': 'Entropy 7.997 (sampled from mdat) — normal for compressed video', 'contribution': 0.0, 'direction': 'authentic'}, 'video_uniformity': {'label': 'Byte uniformity 0.999 — not scored on compressed video (entropy coding makes high uniformity expected here)', 'contribution': 0.0, 'direction': 'neutral'}})
+videos 1/100
+videos 2/100
+videos 3/100
+videos 4/100
+videos 5/100
+videos 6/100
+videos 7/100
+videos 8/100
+videos 9/100
+videos 10/100
+videos 11/100
+videos 12/100
+videos 13/100
+videos 14/100
+videos 15/100
+videos 16/100
+videos 17/100
+videos 18/100
+videos 19/100
+videos 20/100
+videos 21/100
+videos 22/100
+videos 23/100
+videos 24/100
+videos 25/100
+videos 26/100
+videos 27/100
+videos 28/100
+videos 29/100
+videos 30/100
+videos 31/100
+videos 32/100
+videos 33/100
+videos 34/100
+videos 35/100
+videos 36/100
+videos 37/100
+videos 38/100
+videos 39/100
+videos 40/100
+videos 41/100
+videos 42/100
+videos 43/100
+videos 44/100
+videos 45/100
+videos 46/100
+videos 47/100
+videos 48/100
+videos 49/100
+videos 50/100
+videos 51/100
+videos 52/100
+videos 53/100
+videos 54/100
+videos 55/100
+videos 56/100
+videos 57/100
+videos 58/100
+videos 59/100
+videos 60/100
+videos 61/100
+videos 62/100
+videos 63/100
+videos 64/100
+videos 65/100
+videos 66/100
+videos 67/100
+videos 68/100
+videos 69/100
+videos 70/100
+videos 71/100
+videos 72/100
+videos 73/100
+videos 74/100
+videos 75/100
+videos 76/100
+videos 77/100
+videos 78/100
+videos 79/100
+videos 80/100
+videos 81/100
+videos 82/100
+videos 83/100
+videos 84/100
+videos 85/100
+videos 86/100
+videos 87/100
+videos 88/100
+videos 89/100
+videos 90/100
+videos 91/100
+videos 92/100
+videos 93/100
+videos 94/100
+videos 95/100
+videos 96/100
+videos 97/100
+videos 98/100
+videos 99/100
+videos 100/100
+
+=== RESULTS (fused verdict, threshold 0.35) ===
+
+[image / live_test]  variant | n | real correct | fakes detected | mean L1 | mean L2 | mean L3 | flips vs original | mean |dL1| | mean |dL3|
+  original           |  15 |     7/7 |     4/8 | 0.642 | 0.285 | 0.305 |   0 | 0.000 | 0.000
+  jpeg_q90           |  15 |     6/7 |     5/8 | 0.652 | 0.350 | 0.307 |   2 | 0.010 | 0.041
+  jpeg_q70           |  15 |     5/7 |     5/8 | 0.652 | 0.399 | 0.312 |   3 | 0.010 | 0.037
+  jpeg_q50           |  15 |     4/7 |     7/8 | 0.652 | 0.526 | 0.312 |   6 | 0.010 | 0.037
+  resize_half_q90    |  15 |     5/7 |     6/8 | 0.652 | 0.426 | 0.307 |   4 | 0.010 | 0.041
+  meta_stripped      |  12 |     5/5 |     4/7 | 0.750 | 0.330 | 0.331 |   0 | 0.060 | 0.000
+  fake_camera_exif   |   7 |       - |     4/7 | 0.050 | 0.529 | 0.339 |   0 | 0.700 | 0.000
+
+[image / rvf10k]  variant | n | real correct | fakes detected | mean L1 | mean L2 | mean L3 | flips vs original | mean |dL1| | mean |dL3|
+  original           | 200 |  88/100 |  91/100 | 0.750 | 0.424 | 0.226 |   0 | 0.000 | 0.000
+  jpeg_q90           | 200 |  76/100 |  88/100 | 0.750 | 0.439 | 0.244 |  21 | 0.000 | 0.018
+  jpeg_q70           | 200 |  76/100 |  87/100 | 0.750 | 0.424 | 0.312 |  30 | 0.000 | 0.087
+  jpeg_q50           | 200 |  70/100 |  82/100 | 0.750 | 0.386 | 0.312 |  39 | 0.000 | 0.087
+  resize_half_q90    | 200 |  80/100 |  65/100 | 0.750 | 0.305 | 0.230 |  48 | 0.000 | 0.004
+  meta_stripped      | 200 |  88/100 |  91/100 | 0.750 | 0.424 | 0.226 |   0 | 0.000 | 0.000
+  fake_camera_exif   | 100 |       - |  75/100 | 0.050 | 0.749 | 0.226 |  16 | 0.700 | 0.001
+
+[video / ff_c23]  variant | n | real correct | fakes detected | mean L1 | mean L2 | mean L3 | flips vs original | mean |dL1| | mean |dL3|
+  original           | 100 |   34/50 |   39/50 | 0.333 | 0.574 | 0.000 |   0 | 0.000 | 0.000
+  h264_crf23         | 100 |   35/50 |   38/50 | 0.333 | 0.540 | 0.000 |  10 | 0.000 | 0.000
+  h264_crf35         | 100 |   45/50 |   21/50 | 0.333 | 0.338 | 0.000 |  31 | 0.000 | 0.000
+  meta_stripped      | 100 |   35/50 |   38/50 | 0.250 | 0.574 | 0.000 |   2 | 0.083 | 0.000
+  fake_phone_meta    | 100 |   34/50 |   38/50 | 0.300 | 0.574 | 0.000 |   1 | 0.033 | 0.000
+
+Saved results/robustness/robustness_scores.csv

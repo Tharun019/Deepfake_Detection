@@ -1,0 +1,35 @@
+system Grad-CAM uses conv_head: True
+target layer: Conv2d(448, 1792, kernel_size=(1, 1), stride=(1, 1), bias=False)
+fake: 10/100
+fake: 20/100
+fake: 30/100
+fake: 40/100
+fake: 50/100
+fake: 60/100
+fake: 70/100
+fake: 80/100
+fake: 90/100
+fake: 100/100
+real: 10/50
+real: 20/50
+real: 30/50
+real: 40/50
+real: 50/50
+
+=== XAI RESULTS (deletion AUC: lower = more faithful; insertion AUC: higher = more faithful) ===
+
+[fake] n=100  mean original confidence 0.917
+  gradcam  : deletion AUC 0.168 (sd 0.090) | insertion AUC 0.189 | confidence after deleting top 20% 0.284
+  occlusion: deletion AUC 0.088 (sd 0.076) | insertion AUC 0.297 | confidence after deleting top 20% 0.097
+  random   : deletion AUC 0.181 (sd 0.075) | insertion AUC 0.207 | confidence after deleting top 20% 0.163
+  Grad-CAM beats random on deletion in 55/100 images; on insertion in 38/100
+  agreement Grad-CAM vs occlusion: mean Spearman 0.099 | mean top-20% IoU 0.165 (random overlap ~0.111)
+
+[real] n=50  mean original confidence 0.957
+  gradcam  : deletion AUC 0.974 (sd 0.041) | insertion AUC 0.987 | confidence after deleting top 20% 0.949
+  occlusion: deletion AUC 0.947 (sd 0.061) | insertion AUC 0.993 | confidence after deleting top 20% 0.891
+  random   : deletion AUC 0.917 (sd 0.065) | insertion AUC 0.925 | confidence after deleting top 20% 0.927
+  Grad-CAM beats random on deletion in 5/50 images; on insertion in 49/50
+  agreement Grad-CAM vs occlusion: mean Spearman 0.049 | mean top-20% IoU 0.123 (random overlap ~0.111)
+
+Saved results/xai_eval/xai_scores.csv and results/xai_eval/xai_mean_curves.csv

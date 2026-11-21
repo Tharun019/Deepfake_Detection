@@ -1,0 +1,27 @@
+split.json found: ['checkpoints/wav2vec2_itw_ft_v1/split.json']
+test speakers: ['Ayn Rand', 'Christopher Hitchens', 'George Carlin', 'Gilbert Gottfried', 'Jimmy Carter', 'Lyndon Johnson', 'Richard Nixon']
+test clips: real 2776, fake 2005 -> using 100
+Loading weights:   0%|          | 0/215 [00:00<?, ?it/s]Loading weights: 100%|██████████| 215/215 [00:00<00:00, 8456.50it/s]
+sanity first audio: (0.25, {'bitrate': {'label': 'Bitrate normal: 512088bps', 'contribution': 0.0, 'direction': 'neutral'}, 'sample_rate': {'label': 'Sample rate normal: 16000Hz', 'contribution': 0.0, 'direction': 'neutral'}, 'no_flags_baseline': {'label': 'No metadata red flags found — baseline score 25% (absence of red flags is weak evidence, not proof of authenticity)', 'contribution': 0.25, 'direction': 'neutral'}}) | (0.05, {'raw_fake_prob': 0.0003, 'raw_real_prob': 0.9997, 'aggregation': 'median', 'windows_analyzed': 2, 'window_fake_min': 0.0003, 'window_fake_max': 0.0003, 'window_fake_mean': 0.0003, 'window_fake_probs_pct': '0.0, 0.0', 'analyzed_window_sec': 4, 'original_duration_sec': 5.24, 'truncated': False}) | (0.25, {'wav_header': {'label': 'Valid WAV header', 'contribution': 0.0, 'direction': 'authentic'}, 'audio_entropy': {'label': 'Entropy 7.518 — normal for audio', 'contribution': 0.0, 'direction': 'authentic'}, 'audio_uniformity': {'label': 'High byte uniformity 0.795 — suspicious for audio', 'contribution': 0.25, 'direction': 'suspicious'}})
+audio 10/100
+audio 20/100
+audio 30/100
+audio 40/100
+audio 50/100
+audio 60/100
+audio 70/100
+audio 80/100
+audio 90/100
+audio 100/100
+
+=== AUDIO RESULTS (fused verdict, threshold 0.35) ===
+variant | n | real correct | fakes detected | mean L1 | mean L2 | mean L3 | flips vs original | mean |dL1| | mean |dL3|
+  original           | 100 |  49/50 |  47/50 | 0.250 | 0.462 | 0.233 |   0 | 0.000 | 0.000
+  mp3_128k           | 100 |  49/50 |  46/50 | 0.500 | 0.469 | 0.000 |   3 | 0.250 | 0.233
+  mp3_64k            | 100 |  49/50 |  46/50 | 0.500 | 0.471 | 0.000 |   3 | 0.250 | 0.233
+  aac_64k            | 100 |  49/50 |  46/50 | 0.500 | 0.464 | 0.000 |   1 | 0.250 | 0.233
+  phone_8khz         | 100 |  49/50 |  45/50 | 0.500 | 0.448 | 0.060 |   2 | 0.250 | 0.177
+  meta_stripped      | 100 |  49/50 |  44/50 | 0.250 | 0.462 | 0.035 |   3 | 0.000 | 0.207
+  fake_recorder_meta | 100 |  49/50 |  44/50 | 0.250 | 0.462 | 0.035 |   3 | 0.000 | 0.207
+
+Saved results/robustness/robustness_audio_scores.csv

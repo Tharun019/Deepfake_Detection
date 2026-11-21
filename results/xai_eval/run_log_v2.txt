@@ -1,0 +1,35 @@
+conv_head: Conv2d(448, 1792, kernel_size=(1, 1), stride=(1, 1), bias=False) 
+bn2: BatchNormAct2d(
+  1792, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+  (drop): Identity()
+  (act): SiLU(inplace=True)
+)
+selection images: 50
+
+=== STEP 1: selection (50 held-aside fakes, deletion AUC, lower = better) ===
+  current_convhead : 0.165
+  gradcam_bn2      : 0.143
+  gradcampp_bn2    : 0.151
+  CHOSEN: gradcam_bn2
+fake done
+real done
+
+=== STEP 2: one-time test (chosen = gradcam_bn2) ===
+
+[fake] n=100
+  current_convhead : deletion AUC 0.168 | insertion AUC 0.189 | conf after deleting top 20% 0.284
+  chosen           : deletion AUC 0.149 | insertion AUC 0.268 | conf after deleting top 20% 0.225
+  occlusion        : deletion AUC 0.088 | insertion AUC 0.297 | conf after deleting top 20% 0.098
+  random           : deletion AUC 0.187 | insertion AUC 0.211 | conf after deleting top 20% 0.170
+  chosen beats random on deletion 65/100, insertion 70/100
+  chosen vs occlusion agreement: Spearman 0.122 | top-20% IoU 0.168
+
+[real] n=50
+  current_convhead : deletion AUC 0.975 | insertion AUC 0.985 | conf after deleting top 20% 0.949
+  chosen           : deletion AUC 0.974 | insertion AUC 0.990 | conf after deleting top 20% 0.947
+  occlusion        : deletion AUC 0.947 | insertion AUC 0.993 | conf after deleting top 20% 0.891
+  random           : deletion AUC 0.914 | insertion AUC 0.921 | conf after deleting top 20% 0.886
+  chosen beats random on deletion 7/50, insertion 49/50
+  chosen vs occlusion agreement: Spearman 0.107 | top-20% IoU 0.138
+
+Saved results/xai_eval/xai_v2_scores.csv
