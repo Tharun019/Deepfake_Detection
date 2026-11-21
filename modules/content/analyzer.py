@@ -137,7 +137,7 @@ def _analyze_audio(file_path: str):
 
 
 def generate_gradcam(file_path: str):
-    """Grad-CAM heatmap for the fake class via EfficientNet-B4's conv_head.
+    """Grad-CAM heatmap for the fake class via EfficientNet-B4's bn2.
     Returns a base64-encoded JPEG string, or None on failure.
     """
     try:
@@ -149,7 +149,7 @@ def generate_gradcam(file_path: str):
         def _save_fmap(module, inp, out):
             feature_map[0] = out          # keep in computation graph
 
-        target  = model.conv_head
+        target  = model.bn2
         handle  = target.register_forward_hook(_save_fmap)
 
         img_orig = Image.open(file_path).convert('RGB')
